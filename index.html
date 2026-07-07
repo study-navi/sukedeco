@@ -1,153 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>すけでこ｜SukeDeco</title>
-  <style>
-    :root{
-      --bg:#fff7fb;
-      --card:#ffffff;
-      --ink:#2d2a3a;
-      --muted:#7b7890;
-      --pink:#ff74b8;
-      --blue:#68c8ff;
-      --purple:#9b7bff;
-      --yellow:#ffd86b;
-      --mint:#6ee7c8;
-      --shadow:0 14px 35px rgba(81,57,118,.16);
-      --radius:24px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: radial-gradient(circle at top left,#ffe5f2 0,#fff7fb 32%,#eef8ff 100%);
-      color:var(--ink);
-    }
-    header{
-      position:sticky;top:0;z-index:10;
-      background:rgba(255,255,255,.78);
-      backdrop-filter: blur(12px);
-      border-bottom:1px solid rgba(255,255,255,.8);
-      padding:14px 16px;
-    }
-    .brand{display:flex;align-items:center;gap:10px;max-width:1180px;margin:auto}
-    .logo{
-      width:42px;height:42px;border-radius:14px;
-      background:linear-gradient(135deg,var(--pink),var(--blue));
-      display:grid;place-items:center;color:#fff;font-weight:900;
-      box-shadow:0 8px 22px rgba(255,116,184,.35);
-    }
-    .brand h1{font-size:20px;margin:0;line-height:1.1}
-    .brand small{display:block;color:var(--muted);font-size:12px}
-    main{max-width:1180px;margin:0 auto;padding:18px 14px 80px;display:grid;gap:16px;grid-template-columns: 390px 1fr;}
-    .panel{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.9);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;}
-    .panel h2{font-size:17px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
-    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-    .tab{border:0;border-radius:999px;padding:10px 8px;background:#f5efff;color:#5a4a7c;font-weight:700}
-    .tab.active{background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff}
-    label{display:block;font-size:12px;font-weight:800;color:#6e6783;margin:10px 0 5px}
-    input,select,textarea{width:100%;border:2px solid #eee7fb;border-radius:16px;padding:11px 12px;background:#fff;font:inherit;outline:none}
-    input[type="range"]{padding:0;border:0;background:transparent;accent-color:var(--pink)}
-    input[type="color"]{height:44px;padding:5px;border-radius:14px}
-    .check{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #f0e9fb;border-radius:16px;padding:10px 12px;margin-top:10px;font-size:13px;font-weight:800;color:#5a4a7c}.check input{width:auto}
-    textarea{min-height:74px;resize:vertical}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .btn{width:100%;border:0;border-radius:16px;padding:12px 14px;font-weight:900;font-size:14px;background:#eee7fb;color:#4d4169;box-shadow:0 5px 0 rgba(90,74,124,.08);}
-    .btn.primary{background:linear-gradient(135deg,var(--pink),var(--blue));color:#fff}
-    .btn.dark{background:#2d2a3a;color:#fff}
-    .btn.warn{background:#fff0d0;color:#755323}
-    .btn.mini{padding:9px 10px;font-size:12px;border-radius:13px}
-    .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-    .schedule-list{display:grid;gap:8px;margin-top:12px;max-height:210px;overflow:auto;padding-right:3px}
-    .item{background:#fff;border:1px solid #f0e9fb;border-radius:16px;padding:10px;display:flex;justify-content:space-between;gap:8px;align-items:center}
-    .item strong{font-size:13px}.item span{font-size:12px;color:var(--muted);display:block}.del{border:0;border-radius:10px;background:#ffe3ec;color:#c43667;padding:7px 9px;font-weight:900}
-    .templates{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.template{border:2px solid transparent;border-radius:18px;padding:10px;min-height:74px;font-weight:900;color:#fff;display:flex;align-items:end;box-shadow:0 8px 18px rgba(0,0,0,.08)}
-    .template.active{border-color:#2d2a3a}.t-pop{background:linear-gradient(135deg,#ff82bf,#7bd9ff)}.t-night{background:linear-gradient(135deg,#20133d,#7b5cff)}.t-mint{background:linear-gradient(135deg,#5eead4,#93c5fd)}.t-simple{background:linear-gradient(135deg,#2d2a3a,#8b8799)}.t-sunset{background:linear-gradient(135deg,#ff8a5b,#ffd166)}.t-lavender{background:linear-gradient(135deg,#c084fc,#f9a8d4)}
-    .editor{display:grid;gap:16px}.canvas-wrap{display:grid;place-items:center;padding:12px;background:rgba(255,255,255,.45);border-radius:28px;overflow:auto}.canvas{position:relative;width:min(100%,540px);aspect-ratio:1/1.414;background:#fff;border-radius:30px;box-shadow:0 20px 45px rgba(46,38,78,.22);overflow:hidden;touch-action:none;}
-    .canvas.pop{background:radial-gradient(circle at 10% 5%,#fff4a8 0 9%,transparent 10%),linear-gradient(135deg,#fff0f8,#ddf6ff)}
-    .canvas.night{background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.25),transparent 8%),linear-gradient(135deg,#1f1645,#0c102a 60%,#3848a8);color:#fff}
-    .canvas.mint{background:linear-gradient(135deg,#e8fff9,#eaf2ff)}
-    .canvas.simple{background:#f7f7fb}
-    .canvas.sunset{background:linear-gradient(135deg,#fff1d6,#ffe0ef 55%,#e0f2fe)}
-    .canvas.lavender{background:radial-gradient(circle at top right,#fff 0 7%,transparent 8%),linear-gradient(135deg,#f5e8ff,#ffe6f3)}
-    .deco-title{position:absolute;left:8%;top:7%;font-size:clamp(26px,5vw,44px);font-weight:1000;letter-spacing:.03em;text-shadow:0 4px 0 rgba(255,255,255,.6)}
-    .font-rounded{font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif}
-    .font-gothic{font-family: "Hiragino Sans", "Yu Gothic", system-ui, sans-serif}
-    .font-mincho{font-family: "Hiragino Mincho ProN", "Yu Mincho", serif}
-    .font-pop{font-family: "Trebuchet MS", "Hiragino Maru Gothic ProN", sans-serif}
-    .font-modern{font-family: Avenir, Montserrat, system-ui, sans-serif}
-    .deco-sub{position:absolute;left:8%;top:15%;font-weight:800;color:#746b85}.night .deco-sub{color:#d9d5ff}
-    .schedule-card{position:absolute;left:7%;right:7%;top:24%;bottom:8%;background:rgba(255,255,255,.72);border:2px solid rgba(255,255,255,.9);border-radius:26px;padding:18px;display:flex;flex-direction:column;gap:9px;backdrop-filter: blur(5px)}
-    .night .schedule-card{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)}
-    .line{display:grid;grid-template-columns:70px 70px 1fr;gap:8px;align-items:center;background:rgba(255,255,255,.72);border-radius:16px;padding:10px 11px;font-weight:800}.night .line{background:rgba(255,255,255,.16)}
-    .day{font-size:13px;color:#fff;background:linear-gradient(135deg,var(--pink),var(--purple));border-radius:999px;text-align:center;padding:6px 4px}.time{font-size:13px;color:#4f4770}.night .time{color:#e5e0ff}.title{font-size:14px}.tag{font-size:11px;color:#7a728c}.night .tag{color:#d7d1ff}
-    #avatar{position:absolute;right:-2%;bottom:-1%;width:38%;max-height:60%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.22));cursor:grab;user-select:none;display:none;transform-origin:center bottom}
-    .watermark{position:absolute;right:18px;bottom:14px;font-size:10px;font-weight:900;letter-spacing:.04em;color:rgba(45,42,58,.38);background:rgba(255,255,255,.45);border-radius:999px;padding:5px 8px;backdrop-filter:blur(5px);pointer-events:none}.night .watermark{color:rgba(255,255,255,.55);background:rgba(255,255,255,.12)}
-    .mascot{position:absolute;right:6%;top:6%;background:#fff;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.12)}.night .mascot{background:rgba(255,255,255,.16)}
-    .tool-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.small{font-size:12px;color:var(--muted);line-height:1.7}.hidden{display:none}
-    @media(max-width:900px){main{grid-template-columns:1fr}.panel{border-radius:22px}.canvas{width:100%;max-width:430px}.tool-grid{grid-template-columns:repeat(2,1fr)}}
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SukeDeco｜すけでこ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Noto+Sans+JP:wght@400;600;700;900&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Zen+Maru+Gothic:wght@400;700;900&family=Kiwi+Maru:wght@400;500&family=Yusei+Magic&family=Kosugi+Maru&family=Kaisei+Decol:wght@400;700&family=DotGothic16&family=RocknRoll+One&family=Reggae+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<header><div class="brand"><div class="logo">SD</div><div><h1>SukeDeco</h1><small>すけでこ｜配信スケジュール画像メーカー</small></div></div></header>
-<main>
-  <section class="panel">
-    <div class="tabs"><button class="tab active" data-tab="input">予定</button><button class="tab" data-tab="design">デザイン</button><button class="tab" data-tab="export">保存</button></div>
-    <div id="input" class="tabPage">
-      <h2>🗓 予定を入れる</h2>
-      <div class="row"><div><label>日付</label><input id="date" type="date"></div><div><label>開始時間</label><input id="time" type="time" value="21:00"></div></div>
-      <label>タイトル</label><input id="title" placeholder="例：雑談配信 / コラボ / ゲーム配信">
-      <div class="row"><div><label>ジャンル</label><select id="genre"><option>雑談</option><option>ゲーム</option><option>コラボ</option><option>作業</option><option>歌</option><option>記念</option><option>その他</option></select></div><div><label>配信先</label><select id="platform"><option>YouTube</option><option>Twitch</option><option>Mirrativ</option><option>TikTok LIVE</option><option>ツイキャス</option><option>その他</option></select></div></div>
-      <div class="btns"><button class="btn primary" id="addBtn">＋ 予定追加</button><button class="btn" id="sampleBtn">サンプル</button></div>
-      <div class="schedule-list" id="list"></div>
-    </div>
-    <div id="design" class="tabPage hidden">
-      <h2>🎨 デザイン</h2>
-      <label>テンプレート</label><div class="templates"><button class="template t-pop active" data-theme="pop">Pop Candy</button><button class="template t-night" data-theme="night">Neon Night</button><button class="template t-mint" data-theme="mint">Mint Stream</button><button class="template t-simple" data-theme="simple">Simple</button><button class="template t-sunset" data-theme="sunset">Sunset</button><button class="template t-lavender" data-theme="lavender">Lavender</button></div>
-      <label>見出し</label><input id="mainTitle" value="今週の配信予定">
-      <label>サブタイトル</label><input id="subTitle" value="遊びに来てね！">
-      <div class="row"><div><label>フォント</label><select id="fontSelect"><option value="font-rounded">丸ゴシック</option><option value="font-gothic">すっきりゴシック</option><option value="font-mincho">上品な明朝</option><option value="font-pop">ポップ</option><option value="font-modern">モダン</option></select></div><div><label>文字カラー</label><input id="textColor" type="color" value="#2d2a3a"></div></div>
-      <div class="row"><div><label>アクセントカラー</label><input id="accentColor" type="color" value="#ff74b8"></div><div><label>予定表の透明度</label><input id="cardOpacity" type="range" min="35" max="95" value="72"></div></div>
-      <label>自分の立ち絵・イラスト</label><input id="avatarInput" type="file" accept="image/*">
-      <label>立ち絵サイズ</label><input id="avatarSize" type="range" min="40" max="220" value="100">
-      <div class="btns"><button class="btn" id="flipBtn">左右反転</button><button class="btn warn" id="removeAvatar">画像削除</button></div>
-      <p class="small">立ち絵はプレビュー上でドラッグできます。サイズ変更・左右反転にも対応しました。</p>
-    </div>
-    <div id="export" class="tabPage hidden">
-      <h2>📤 保存・下書き</h2>
-      <div class="tool-grid"><button class="btn primary" id="downloadBtn">PNG保存</button><button class="btn" id="saveDraft">下書き保存</button><button class="btn" id="loadDraft">下書き読込</button><button class="btn warn" id="clearDraft">初期化</button></div>
-      <label class="check"><input id="watermarkToggle" type="checkbox" checked> Made with SukeDeco を右下に小さく表示</label>
-      <p class="small">透かしは小さめ表示。OFFにすれば完成画像から消せます。</p>
-    </div>
-  </section>
-  <section class="editor">
-    <div class="panel"><h2>✨ 完成プレビュー</h2><div class="canvas-wrap"><div id="canvas" class="canvas pop"><div class="mascot">すけでこ中 ✨</div><div id="previewTitle" class="deco-title">今週の配信予定</div><div id="previewSub" class="deco-sub">遊びに来てね！</div><div class="schedule-card" id="previewList"></div><img id="avatar" alt="uploaded avatar"><div id="watermark" class="watermark">Made with SukeDeco</div></div></div></div>
-  </section>
-</main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-const $=id=>document.getElementById(id);let schedules=[];let theme='pop';let avatarState={x:0,y:0,scale:1,flip:1};
-function fmtDate(v){if(!v)return '--/--';const d=new Date(v+'T00:00:00');return `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][d.getDay()]})`}
-function render(){ $('previewTitle').textContent=$('mainTitle').value||'今週の配信予定'; $('previewSub').textContent=$('subTitle').value||''; applyDesign(); const p=$('previewList'); p.innerHTML=''; const show=schedules.length?schedules:[{date:'',time:'21:00',title:'予定を追加してね',genre:'Sample',platform:'SukeDeco'}]; show.forEach(s=>{const div=document.createElement('div');div.className='line';div.innerHTML=`<div class="day">${fmtDate(s.date)}</div><div class="time">${s.time||'--:--'}</div><div><div class="title">${escapeHtml(s.title)}</div><div class="tag">${escapeHtml(s.genre)} / ${escapeHtml(s.platform)}</div></div>`;p.appendChild(div)}); renderList();}
-function applyDesign(){ const c=$('canvas'); const font=$('fontSelect')?.value||'font-rounded'; ['font-rounded','font-gothic','font-mincho','font-pop','font-modern'].forEach(f=>c.classList.remove(f)); c.classList.add(font); const color=$('textColor')?.value||'#2d2a3a'; $('previewTitle').style.color=color; $('previewSub').style.color=color; const accent=$('accentColor')?.value||'#ff74b8'; document.documentElement.style.setProperty('--pink', accent); const op=(($('cardOpacity')?.value||72)/100); $('previewList').style.background=`rgba(255,255,255,${op})`; const wm=$('watermark'); if(wm) wm.style.display=$('watermarkToggle')?.checked?'block':'none'; }
-function renderList(){const l=$('list');l.innerHTML='';schedules.forEach((s,i)=>{const d=document.createElement('div');d.className='item';d.innerHTML=`<div><strong>${escapeHtml(s.title)}</strong><span>${fmtDate(s.date)} ${s.time}｜${s.genre}</span></div><button class="del">削除</button>`;d.querySelector('button').onclick=()=>{schedules.splice(i,1);render()};l.appendChild(d)});}
-function escapeHtml(str=''){return str.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-$('addBtn').onclick=()=>{if(!$('title').value.trim()){alert('タイトルを入れてください');return}schedules.push({date:$('date').value,time:$('time').value,title:$('title').value.trim(),genre:$('genre').value,platform:$('platform').value});$('title').value='';render()};
-$('sampleBtn').onclick=()=>{schedules=[{date:'2026-07-10',time:'20:00',title:'初見さん歓迎！雑談配信',genre:'雑談',platform:'YouTube'},{date:'2026-07-12',time:'21:30',title:'参加型ゲーム配信',genre:'ゲーム',platform:'Twitch'},{date:'2026-07-14',time:'22:00',title:'コラボ企画',genre:'コラボ',platform:'Mirrativ'}];render()};
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.tabPage').forEach(x=>x.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden')});
-document.querySelectorAll('.template').forEach(b=>b.onclick=()=>{document.querySelectorAll('.template').forEach(x=>x.classList.remove('active'));b.classList.add('active');theme=b.dataset.theme;$('canvas').className='canvas '+theme;render()});
-['mainTitle','subTitle','fontSelect','textColor','accentColor','cardOpacity','watermarkToggle'].forEach(id=>$(id).addEventListener('input',render));
-$('avatarInput').onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{const img=$('avatar');img.src=r.result;img.style.display='block';avatarState={x:0,y:0,scale:(($('avatarSize')?.value||100)/100),flip:1};applyAvatar()};r.readAsDataURL(file)};
-function applyAvatar(){const img=$('avatar');img.style.transform=`translate(${avatarState.x}px,${avatarState.y}px) scaleX(${avatarState.flip}) scale(${avatarState.scale})`}
-$('avatarSize').oninput=()=>{avatarState.scale=$('avatarSize').value/100;applyAvatar()};$('flipBtn').onclick=()=>{avatarState.flip*=-1;applyAvatar()};$('removeAvatar').onclick=()=>{$('avatar').style.display='none';$('avatar').src=''};
-let dragging=false,start={x:0,y:0,ax:0,ay:0};$('avatar').addEventListener('pointerdown',e=>{dragging=true;start={x:e.clientX,y:e.clientY,ax:avatarState.x,ay:avatarState.y};$('avatar').setPointerCapture(e.pointerId)});$('avatar').addEventListener('pointermove',e=>{if(!dragging)return;avatarState.x=start.ax+e.clientX-start.x;avatarState.y=start.ay+e.clientY-start.y;applyAvatar()});$('avatar').addEventListener('pointerup',()=>dragging=false);
-$('downloadBtn').onclick=async()=>{const canvas=await html2canvas($('canvas'),{scale:3,backgroundColor:null,useCORS:true});const a=document.createElement('a');a.download='sukedeco_schedule.png';a.href=canvas.toDataURL('image/png');a.click()};
-$('saveDraft').onclick=()=>{localStorage.setItem('sukedecoDraft',JSON.stringify({schedules,theme,title:$('mainTitle').value,sub:$('subTitle').value,font:$('fontSelect').value,textColor:$('textColor').value,accentColor:$('accentColor').value,cardOpacity:$('cardOpacity').value,watermark:$('watermarkToggle').checked,avatar:$('avatar').src,avatarDisplay:$('avatar').style.display,avatarState,avatarSize:$('avatarSize').value}));alert('下書きを保存しました')};
-$('loadDraft').onclick=()=>{const d=JSON.parse(localStorage.getItem('sukedecoDraft')||'null');if(!d){alert('下書きがありません');return}schedules=d.schedules||[];theme=d.theme||'pop';$('mainTitle').value=d.title||'今週の配信予定';$('subTitle').value=d.sub||'遊びに来てね！';$('fontSelect').value=d.font||'font-rounded';$('textColor').value=d.textColor||'#2d2a3a';$('accentColor').value=d.accentColor||'#ff74b8';$('cardOpacity').value=d.cardOpacity||72;$('watermarkToggle').checked=d.watermark!==false;$('avatarSize').value=d.avatarSize||100;$('canvas').className='canvas '+theme;document.querySelectorAll('.template').forEach(x=>x.classList.toggle('active',x.dataset.theme===theme));if(d.avatar){$('avatar').src=d.avatar;$('avatar').style.display=d.avatarDisplay||'block';avatarState=d.avatarState||avatarState;applyAvatar()}render()};
-$('clearDraft').onclick=()=>{if(confirm('初期化しますか？')){schedules=[];$('mainTitle').value='今週の配信予定';$('subTitle').value='遊びに来てね！';$('fontSelect').value='font-rounded';$('textColor').value='#2d2a3a';$('accentColor').value='#ff74b8';$('cardOpacity').value=72;$('watermarkToggle').checked=true;$('avatarSize').value=100;$('avatar').style.display='none';render()}};
-render();
-</script>
+  <div id="app">
+    <header class="appHeader">
+      <div class="brand">
+        <div class="logoBubble">SD</div>
+        <div>
+          <div class="brandName">SukeDeco</div>
+          <div class="brandSub">すけでこ｜配信スケジュール画像メーカー</div>
+        </div>
+      </div>
+      <button class="pillBtn" id="newDesignBtn">＋新規</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel leftPanel">
+        <div class="sectionTitle">予定を入力</div>
+        <div class="scheduleForm">
+          <input id="dateInput" type="text" placeholder="7/15(火)" />
+          <input id="timeInput" type="text" placeholder="20:00" />
+          <input id="titleInput" type="text" placeholder="雑談配信" />
+          <select id="genreInput">
+            <option>💬 雑談</option>
+            <option>🎮 ゲーム</option>
+            <option>🎤 歌</option>
+            <option>🤝 コラボ</option>
+            <option>🎉 記念</option>
+            <option>📢 お知らせ</option>
+            <option>🎯 耐久</option>
+            <option>✨ その他</option>
+          </select>
+          <button class="mainBtn" id="addScheduleBtn">予定を追加</button>
+        </div>
+
+        <div class="sectionTitle withTop">テンプレート</div>
+        <div class="templateGrid" id="templateGrid"></div>
+
+        <div class="sectionTitle withTop">背景</div>
+        <div class="chipGrid" id="bgGrid"></div>
+      </section>
+
+      <section class="centerStage">
+        <div class="canvasTopbar">
+          <div>
+            <strong>編集プレビュー</strong>
+            <span id="sizeLabel">X正方形 1080×1080</span>
+          </div>
+          <div class="topActions">
+            <select id="exportSize">
+              <option value="square">X正方形</option>
+              <option value="portrait">X縦長</option>
+              <option value="story">ストーリー</option>
+            </select>
+            <button class="softBtn" id="saveDraftBtn">下書き保存</button>
+            <button class="mainBtn" id="downloadBtn">PNG保存</button>
+          </div>
+        </div>
+
+        <div class="canvasWrap">
+          <div id="captureArea" class="poster square theme-pop bg-gradient">
+            <div class="posterDecor decor1">✦</div>
+            <div class="posterDecor decor2">●</div>
+            <div class="posterDecor decor3">♡</div>
+            <div class="posterTitle" contenteditable="true">今週の配信予定</div>
+            <div class="posterSubtitle" contenteditable="true">遊びに来てね！</div>
+            <div class="scheduleList" id="scheduleList"></div>
+            <img id="standImage" class="standImage hidden" alt="立ち絵" />
+            <div id="shapeLayer"></div>
+            <div id="stampLayer"></div>
+            <div class="watermark" id="watermark">Made with SukeDeco</div>
+          </div>
+        </div>
+
+        <nav class="bottomTools">
+          <button data-tool="text" class="toolBtn active">文字</button>
+          <button data-tool="stand" class="toolBtn">立ち絵</button>
+          <button data-tool="shape" class="toolBtn">図形</button>
+          <button data-tool="stamp" class="toolBtn">素材</button>
+          <button data-tool="export" class="toolBtn">保存</button>
+        </nav>
+      </section>
+
+      <section class="panel rightPanel">
+        <div class="toolPanel" id="tool-text">
+          <div class="sectionTitle">文字デザイン</div>
+          <label>フォント</label>
+          <select id="fontSelect"></select>
+          <label>文字色</label>
+          <input id="textColor" type="color" value="#ffffff" />
+          <label>アクセント色</label>
+          <input id="accentColor" type="color" value="#ff74bd" />
+          <label>タイトルサイズ</label>
+          <input id="titleSize" type="range" min="34" max="92" value="56" />
+          <div class="switchRow"><span>縁取り</span><input id="outlineToggle" type="checkbox" checked /></div>
+          <div class="switchRow"><span>影</span><input id="shadowToggle" type="checkbox" checked /></div>
+        </div>
+
+        <div class="toolPanel hidden" id="tool-stand">
+          <div class="sectionTitle">立ち絵・画像</div>
+          <label class="uploadBox">画像をアップロード<input id="standUpload" type="file" accept="image/*" hidden /></label>
+          <label>大きさ</label>
+          <input id="standSize" type="range" min="40" max="260" value="120" />
+          <label>透明度</label>
+          <input id="standOpacity" type="range" min="20" max="100" value="100" />
+          <label>回転</label>
+          <input id="standRotate" type="range" min="-30" max="30" value="0" />
+          <div class="buttonRow">
+            <button class="softBtn" id="flipStand">左右反転</button>
+            <button class="softBtn" id="resetStand">位置リセット</button>
+          </div>
+          <div class="hint">立ち絵はプレビュー上でドラッグ移動できます。</div>
+        </div>
+
+        <div class="toolPanel hidden" id="tool-shape">
+          <div class="sectionTitle">図形を追加</div>
+          <div class="shapeGrid">
+            <button data-shape="circle">○</button>
+            <button data-shape="round">▭</button>
+            <button data-shape="star">★</button>
+            <button data-shape="heart">♥</button>
+            <button data-shape="bubble">吹</button>
+            <button data-shape="line">─</button>
+          </div>
+          <label>図形色</label>
+          <input id="shapeColor" type="color" value="#fff176" />
+        </div>
+
+        <div class="toolPanel hidden" id="tool-stamp">
+          <div class="sectionTitle">スタンプ素材</div>
+          <div class="stampGrid" id="stampGrid"></div>
+          <div class="hint">追加した素材はドラッグ移動できます。</div>
+        </div>
+
+        <div class="toolPanel hidden" id="tool-export">
+          <div class="sectionTitle">書き出し設定</div>
+          <div class="switchRow"><span>Made with SukeDeco</span><input id="watermarkToggle" type="checkbox" checked /></div>
+          <div class="switchRow"><span>予定カードを大きく</span><input id="largeCardsToggle" type="checkbox" /></div>
+          <button class="mainBtn full" id="downloadBtn2">PNG保存</button>
+          <button class="softBtn full" id="clearDraftBtn">下書き削除</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

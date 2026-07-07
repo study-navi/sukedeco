@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SukeDeco｜すけでこ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Noto+Sans+JP:wght@400;600;700;900&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Zen+Maru+Gothic:wght@400;700;900&family=Kiwi+Maru:wght@400;500&family=Yusei+Magic&family=Kosugi+Maru&family=Kaisei+Decol:wght@400;700&family=DotGothic16&family=RocknRoll+One&family=Reggae+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="appHeader">
+      <div class="brand">
+        <div class="logoBubble">SD</div>
+        <div>
+          <div class="brandName">SukeDeco</div>
+          <div class="brandSub">すけでこ｜配信スケジュール画像メーカー</div>
+        </div>
+      </div>
+      <button class="pillBtn" id="newDesignBtn">＋新規</button>
+    </header>
+
+    <main class="layout">
+      <section class="panel leftPanel">
+        <div class="sectionTitle">予定を入力</div>
+        <div class="scheduleForm">
+          <input id="dateInput" type="text" placeholder="7/15(火)" />
+          <input id="timeInput" type="text" placeholder="20:00" />
+          <input id="titleInput" type="text" placeholder="雑談配信" />
+          <select id="genreInput">
+            <option>💬 雑談</option>
+            <option>🎮 ゲーム</option>
+            <option>🎤 歌</option>
+            <option>🤝 コラボ</option>
+            <option>🎉 記念</option>
+            <option>📢 お知らせ</option>
+            <option>🎯 耐久</option>
+            <option>✨ その他</option>
+          </select>
+          <button class="mainBtn" id="addScheduleBtn">予定を追加</button>
+        </div>
+
+        <div class="sectionTitle withTop">テンプレート</div>
+        <div class="templateGrid" id="templateGrid"></div>
+
+        <div class="sectionTitle withTop">背景</div>
+        <div class="chipGrid" id="bgGrid"></div>
+      </section>
+
+      <section class="centerStage">
+        <div class="canvasTopbar">
+          <div>
+            <strong>編集プレビュー</strong>
+            <span id="sizeLabel">X正方形 1080×1080</span>
+          </div>
+          <div class="topActions">
+            <select id="exportSize">
+              <option value="square">X正方形</option>
+              <option value="portrait">X縦長</option>
+              <option value="story">ストーリー</option>
+            </select>
+            <button class="softBtn" id="saveDraftBtn">下書き保存</button>
+            <button class="mainBtn" id="downloadBtn">PNG保存</button>
+          </div>
+        </div>
+
+        <div class="canvasWrap">
+          <div id="captureArea" class="poster square theme-pop bg-gradient">
+            <div class="posterDecor decor1">✦</div>
+            <div class="posterDecor decor2">●</div>
+            <div class="posterDecor decor3">♡</div>
+            <div class="posterTitle" contenteditable="true">今週の配信予定</div>
+            <div class="posterSubtitle" contenteditable="true">遊びに来てね！</div>
+            <div class="scheduleList" id="scheduleList"></div>
+            <img id="standImage" class="standImage hidden" alt="立ち絵" />
+            <div id="shapeLayer"></div>
+            <div id="stampLayer"></div>
+            <div class="watermark" id="watermark">Made with SukeDeco</div>
+          </div>
+        </div>
+
+        <nav class="bottomTools">
+          <button data-tool="text" class="toolBtn active">文字</button>
+          <button data-tool="stand" class="toolBtn">立ち絵</button>
+          <button data-tool="shape" class="toolBtn">図形</button>
+          <button data-tool="stamp" class="toolBtn">素材</button>
+          <button data-tool="export" class="toolBtn">保存</button>
+        </nav>
+      </section>
+
+      <section class="panel rightPanel">
+        <div class="toolPanel" id="tool-text">
+          <div class="sectionTitle">文字デザイン</div>
+          <label>フォント</label>
+          <select id="fontSelect"></select>
+          <label>文字色</label>
+          <input id="textColor" type="color" value="#ffffff" />
+          <label>アクセント色</label>
+          <input id="accentColor" type="color" value="#ff74bd" />
+          <label>タイトルサイズ</label>
+          <input id="titleSize" type="range" min="34" max="92" value="56" />
+          <div class="switchRow"><span>縁取り</span><input id="outlineToggle" type="checkbox" checked /></div>
+          <div class="switchRow"><span>影</span><input id="shadowToggle" type="checkbox" checked /></div>
+        </div>
+
+        <div class="toolPanel hidden" id="tool-stand">
+          <div class="sectionTitle">立ち絵・画像</div>
+          <label class="uploadBox">画像をアップロード<input id="standUpload" type="file" accept="image/*" hidden /></label>
+          <label>大きさ</label>
+          <input id="standSize" type="range" min="40" max="260" value="120" />
+          <label>透明度</label>
+          <input id="standOpacity" type="range" min="20" max="100" value="100" />
+          <label>回転</label>
+          <input id="standRotate" type="range" min="-30" max="30" value="0" />
+          <div class="buttonRow">
+            <button class="softBtn" id="flipStand">左右反転</button>
+            <button class="softBtn" id="resetStand">位置リセット</button>
+          </div>
+          <div class="hint">立ち絵はプレビュー上でドラッグ移動できます。</div>
+        </div>
+
+        <div class="toolPanel hidden" id="tool-shape">
+          <div class="sectionTitle">図形を追加</div>
+          <div class="shapeGrid">
+            <button data-shape="circle">○</button>
+            <button data-shape="round">▭</button>
+            <button data-shape="star">★</button>
+            <button data-shape="heart">♥</button>
+            <button data-shape="bubble">吹</button>
+            <button data-shape="line">─</button>
+          </div>
+          <label>図形色</label>
+          <input id="shapeColor" type="color" value="#fff176" />
+        </div>
+
+        <div class="toolPanel hidden" id="tool-stamp">
+          <div class="sectionTitle">スタンプ素材</div>
+          <div class="stampGrid" id="stampGrid"></div>
+          <div class="hint">追加した素材はドラッグ移動できます。</div>
+        </div>
+
+        <div class="toolPanel hidden" id="tool-export">
+          <div class="sectionTitle">書き出し設定</div>
+          <div class="switchRow"><span>Made with SukeDeco</span><input id="watermarkToggle" type="checkbox" checked /></div>
+          <div class="switchRow"><span>予定カードを大きく</span><input id="largeCardsToggle" type="checkbox" /></div>
+          <button class="mainBtn full" id="downloadBtn2">PNG保存</button>
+          <button class="softBtn full" id="clearDraftBtn">下書き削除</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -42,8 +42,11 @@
           <button class="mainBtn" id="addScheduleBtn">予定を追加</button>
         </div>
 
-        <div class="sectionTitle withTop">テンプレート</div>
+        <div class="sectionTitle withTop">レイアウト</div>
         <div class="templateGrid" id="templateGrid"></div>
+
+        <div class="sectionTitle withTop">デザイン</div>
+        <div class="chipGrid" id="designGrid"></div>
 
         <div class="sectionTitle withTop">背景</div>
         <div class="chipGrid" id="bgGrid"></div>
@@ -67,10 +70,11 @@
         </div>
 
         <div class="canvasWrap">
-          <div id="captureArea" class="poster square theme-pop bg-gradient">
-            <div class="posterDecor decor1">✦</div>
-            <div class="posterDecor decor2">●</div>
-            <div class="posterDecor decor3">♡</div>
+          <div id="captureArea" class="poster square theme-simple bg-blank">
+            <div class="posterDecor decor1 hidden">✦</div>
+            <div class="posterDecor decor2 hidden">●</div>
+            <div class="posterDecor decor3 hidden">♡</div>
+            <div class="emptyHint" id="emptyHint">白紙キャンバスです<br>左の「レイアウト」「デザイン」「背景」から選べます</div>
             <div class="posterTitle" contenteditable="true">今週の配信予定</div>
             <div class="posterSubtitle" contenteditable="true">遊びに来てね！</div>
             <div class="scheduleList" id="scheduleList"></div>
@@ -86,6 +90,7 @@
           <button data-tool="stand" class="toolBtn">立ち絵</button>
           <button data-tool="shape" class="toolBtn">図形</button>
           <button data-tool="stamp" class="toolBtn">素材</button>
+          <button data-tool="edit" class="toolBtn" id="editToolBtn">編集</button>
           <button data-tool="export" class="toolBtn">保存</button>
         </nav>
       </section>
@@ -139,6 +144,24 @@
           <div class="sectionTitle">スタンプ素材</div>
           <div class="stampGrid" id="stampGrid"></div>
           <div class="hint">追加した素材はドラッグ移動できます。</div>
+        </div>
+
+        <div class="toolPanel hidden" id="tool-edit">
+          <div class="sectionTitle">選択中の要素</div>
+          <div id="selectedInfo" class="selectedInfo">素材・図形・立ち絵をタップすると編集できます。</div>
+          <div class="buttonRow wrap">
+            <button class="softBtn" id="duplicateEl">複製</button>
+            <button class="softBtn" id="frontEl">前面</button>
+            <button class="softBtn" id="backEl">背面</button>
+            <button class="dangerBtn" id="deleteEl">削除</button>
+          </div>
+          <label>大きさ</label>
+          <input id="selectedScale" type="range" min="40" max="220" value="100" />
+          <label>回転</label>
+          <input id="selectedRotate" type="range" min="-45" max="45" value="0" />
+          <label>透明度</label>
+          <input id="selectedOpacity" type="range" min="20" max="100" value="100" />
+          <div class="hint">追加した素材・図形は、タップしてから編集できます。削除もここからできます。</div>
         </div>
 
         <div class="toolPanel hidden" id="tool-export">

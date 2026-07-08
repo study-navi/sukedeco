@@ -4,9 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>SukeDeco｜すけでこ</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Noto+Sans+JP:wght@400;600;700;900&family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Zen+Maru+Gothic:wght@400;700;900&family=Kiwi+Maru:wght@400;500&family=Yusei+Magic&family=Kosugi+Maru&family=Kaisei+Decol:wght@400;700&family=DotGothic16&family=RocknRoll+One&family=Reggae+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -74,6 +71,7 @@
             <div class="posterDecor decor1 hidden">✦</div>
             <div class="posterDecor decor2 hidden">●</div>
             <div class="posterDecor decor3 hidden">♡</div>
+            <div id="mixerLayer" class="mixerLayer"></div>
             <div class="emptyHint" id="emptyHint">白紙キャンバスです<br>左の「レイアウト」「デザイン」「背景」から選べます</div>
             <div class="posterTitle" contenteditable="true">今週の配信予定</div>
             <div class="posterSubtitle" contenteditable="true">遊びに来てね！</div>
@@ -90,6 +88,7 @@
           <button data-tool="stand" class="toolBtn">立ち絵</button>
           <button data-tool="shape" class="toolBtn">図形</button>
           <button data-tool="stamp" class="toolBtn">素材</button>
+          <button data-tool="mixer" class="toolBtn">背景ミキサー</button>
           <button data-tool="edit" class="toolBtn" id="editToolBtn">編集</button>
           <button data-tool="export" class="toolBtn">保存</button>
         </nav>
@@ -146,6 +145,52 @@
           <div class="hint">追加した素材はドラッグ移動できます。</div>
         </div>
 
+
+
+        <div class="toolPanel hidden" id="tool-mixer">
+          <div class="sectionTitle">背景ミキサー</div>
+          <div class="hint">雰囲気・色・模様を選ぶと、自動で背景を組み合わせます。あとから色や強さも微調整できます。</div>
+
+          <label>雰囲気</label>
+          <select id="mixerMood">
+            <option value="kawaii">かわいい</option>
+            <option value="night">夜・しっとり</option>
+            <option value="game">ゲーム</option>
+            <option value="cyber">サイバー</option>
+            <option value="cafe">カフェ</option>
+            <option value="summer">夏</option>
+            <option value="simple">シンプル</option>
+          </select>
+
+          <label>メイン色</label>
+          <input id="mixerColor1" type="color" value="#9a7bff" />
+          <label>サブ色</label>
+          <input id="mixerColor2" type="color" value="#ff8ecf" />
+
+          <label>模様</label>
+          <select id="mixerPattern">
+            <option value="stars">星</option>
+            <option value="hearts">ハート</option>
+            <option value="dots">水玉</option>
+            <option value="grid">グリッド</option>
+            <option value="stripe">ストライプ</option>
+            <option value="none">なし</option>
+          </select>
+
+          <label>装飾の量</label>
+          <input id="mixerAmount" type="range" min="0" max="40" value="16" />
+          <label>背景の明るさ</label>
+          <input id="mixerLight" type="range" min="60" max="130" value="100" />
+          <label>模様の濃さ</label>
+          <input id="mixerOpacity" type="range" min="10" max="90" value="42" />
+
+          <div class="buttonRow wrap">
+            <button class="mainBtn" id="makeMixerBg">背景を作る</button>
+            <button class="softBtn" id="randomMixerBg">おまかせ</button>
+            <button class="softBtn" id="clearMixerBg">白紙に戻す</button>
+          </div>
+        </div>
+
         <div class="toolPanel hidden" id="tool-edit">
           <div class="sectionTitle">選択中の要素</div>
           <div id="selectedInfo" class="selectedInfo">素材・図形・立ち絵をタップすると編集できます。</div>
@@ -175,7 +220,6 @@
     </main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

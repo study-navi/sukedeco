@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const state = {
   screen:'home', step:'input', title:'今週の配信予定', events:[], mood:'pop', color:'#54a6ff', prompt:'', candidates:[], selected:0,
-  illust:null, illustX:0, illustY:0, illustScale:100, illustFlip:false, autoFit:true, watermark:true, fontScale:100, outputSize:'square', seed:Date.now(),
+  illust:null, illustEdgeColor:null, illustX:0, illustY:0, illustScale:100, illustFlip:false, autoFit:true, watermark:true, fontScale:100, outputSize:'square', seed:Date.now(),
   brand:{name:'', logo:null, illust:null, color:'#54a6ff', mood:'pop'}, brandDraft:null, brandStep:1, startedAt:null, speedShown:false
 };
 const moodNames = {pop:'ポップ',cool:'クール',game:'ゲーム',simple:'シンプル',cute:'かわいい',night:'夜'};
@@ -110,13 +110,16 @@ async function applyBrand(){
     $('illustImg').src=state.illust; $('illustLayer').classList.remove('hidden');
     state.illustFlip=false;
     if($('flipIllustStep')) $('flipIllustStep').checked=false;
+    const loadedImg=await loadImageFromDataUrl(state.illust);
+    state.illustEdgeColor=await detectIllustEdgeColor(loadedImg);
     if(state.autoFit){
-      await applyAutoFitToCurrentIllust();
+      await applyAutoFitToCurrentIllust(loadedImg);
     }else{
       state.illustX=0; state.illustY=0; state.illustScale=100;
     }
     updateIllustControls();
   }else{
+    state.illustEdgeColor=null;
     $('illustLayer').classList.add('hidden');
   }
   document.querySelectorAll('#moodGroup .chip').forEach(b=>b.classList.toggle('active', b.dataset.mood===state.mood));
@@ -172,10 +175,54 @@ function computeAutoFit(img, outputSize){
   illustScale=Math.max(50, Math.min(180, illustScale));
   return {illustX, illustY, illustScale};
 }
-async function applyAutoFitToCurrentIllust(){
+async function detectIllustEdgeColor(img){
+  try{
+    const c=document.createElement('canvas');
+    const w=Math.min(img.naturalWidth, 200);
+    const h=Math.min(img.naturalHeight, 200);
+    c.width=w; c.height=h;
+    const ctx=c.getContext('2d');
+    ctx.drawImage(img,0,0,w,h);
+    const sw=Math.max(1, Math.floor(w*.1));
+    const sh=Math.max(1, Math.floor(h*.1));
+    const corners=[
+      ctx.getImageData(0,0,sw,sh),
+      ctx.getImageData(w-sw,0,sw,sh),
+      ctx.getImageData(0,h-sh,sw,sh),
+      ctx.getImageData(w-sw,h-sh,sw,sh)
+    ];
+    let r=0,g=0,b=0,count=0,alphaSum=0,pixelCount=0;
+    corners.forEach(data=>{
+      const d=data.data;
+      for(let i=0;i<d.length;i+=4){
+        const alpha=d[i+3];
+        alphaSum+=alpha; pixelCount++;
+        if(alpha>10){ r+=d[i]; g+=d[i+1]; b+=d[i+2]; count++; }
+      }
+    });
+    if(count===0) return null;
+    const avgAlpha=pixelCount ? alphaSum/pixelCount : 0;
+    if(avgAlpha<40) return null;
+    return {r:Math.round(r/count), g:Math.round(g/count), b:Math.round(b/count)};
+  }catch(e){
+    console.error(e);
+    return null;
+  }
+}
+function updateIllustBlendGlow(){
+  const glow=$('illustBlendGlow'); if(!glow) return;
+  if(state.illustEdgeColor){
+    const c=state.illustEdgeColor;
+    glow.style.setProperty('--illust-glow-color', `rgba(${c.r}, ${c.g}, ${c.b}, .5)`);
+    glow.classList.remove('hidden');
+  }else{
+    glow.classList.add('hidden');
+  }
+}
+async function applyAutoFitToCurrentIllust(existingImg=null){
   if(!state.illust || !state.autoFit) return;
   try{
-    const img=await loadImageFromDataUrl(state.illust);
+    const img=existingImg || await loadImageFromDataUrl(state.illust);
     const fit=computeAutoFit(img, state.outputSize || $('outputSize')?.value || 'square');
     state.illustX=fit.illustX;
     state.illustY=fit.illustY;
@@ -216,7 +263,7 @@ function saveState(){
   state.outputSize=$('outputSize')?.value || state.outputSize || 'square';
   const payload = JSON.stringify({
     title:state.title, events:state.events, mood:state.mood, color:state.color, prompt:state.prompt, outputSize:state.outputSize,
-    illust:state.illust, illustX:state.illustX, illustY:state.illustY, illustScale:state.illustScale,
+    illust:state.illust, illustEdgeColor:state.illustEdgeColor, illustX:state.illustX, illustY:state.illustY, illustScale:state.illustScale,
     illustFlip:state.illustFlip, autoFit:state.autoFit, watermark:state.watermark, fontScale:state.fontScale
   });
   safeSetStorage('sukedeco_v2_2', payload);
@@ -317,8 +364,10 @@ async function handleIllust(file){
     $('illustImg').src=state.illust; $('illustLayer').classList.remove('hidden');
     state.illustFlip=false;
     if($('flipIllustStep')) $('flipIllustStep').checked=false;
+    const loadedImg=await loadImageFromDataUrl(state.illust);
+    state.illustEdgeColor=await detectIllustEdgeColor(loadedImg);
     if(state.autoFit){
-      await applyAutoFitToCurrentIllust();
+      await applyAutoFitToCurrentIllust(loadedImg);
       notify('立ち絵を自動フィットしました。');
     }else{
       state.illustX=0; state.illustY=0; state.illustScale=100;
@@ -347,7 +396,7 @@ function applyIllustShadowTheme(){
   layer.style.setProperty('--illust-shadow-color', colors.shadow);
   layer.style.setProperty('--illust-ground-color', colors.ground);
 }
-function renderIllust(){const layer=$('illustLayer'); if(!layer) return; applyIllustShadowTheme(); layer.style.transform=`translate(${state.illustX}px,${state.illustY}px) scale(${state.illustScale/100}) scaleX(${state.illustFlip?-1:1})`;}
+function renderIllust(){const layer=$('illustLayer'); if(!layer) return; applyIllustShadowTheme(); updateIllustBlendGlow(); layer.style.transform=`translate(${state.illustX}px,${state.illustY}px) scale(${state.illustScale/100}) scaleX(${state.illustFlip?-1:1})`;}
 function getIllustExportPosition(specW, specH){
   const preview=$('canvasPreview').getBoundingClientRect();
   const layer=$('illustLayer').getBoundingClientRect();
@@ -422,6 +471,16 @@ function renderScheduleToExportCanvas(){
     ctx.save(); ctx.globalAlpha=1; ctx.fillStyle=shadowColors.ground;
     ctx.beginPath(); ctx.ellipse(pos.cx, pos.cy+ih*.48, iw*.34, Math.max(10, ih*.045), 0, 0, Math.PI*2); ctx.fill();
     ctx.restore();
+    if(state.illustEdgeColor){
+      const c=state.illustEdgeColor;
+      const glowRadius=Math.max(iw,ih)*.62;
+      const grad=ctx.createRadialGradient(pos.cx,pos.cy,0,pos.cx,pos.cy,glowRadius);
+      grad.addColorStop(0, `rgba(${c.r}, ${c.g}, ${c.b}, .45)`);
+      grad.addColorStop(1, `rgba(${c.r}, ${c.g}, ${c.b}, 0)`);
+      ctx.save(); ctx.globalAlpha=1; ctx.fillStyle=grad;
+      ctx.beginPath(); ctx.arc(pos.cx,pos.cy,glowRadius,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
     ctx.save(); ctx.translate(pos.cx,pos.cy); ctx.scale(state.illustFlip?-1:1,1);
     try{ctx.filter='brightness(1.04) contrast(1.05) saturate(1.08)';}catch(e){}
     ctx.drawImage(img,-iw/2,-ih/2,iw,ih);

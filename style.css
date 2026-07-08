@@ -4,3 +4,63 @@
 
 /* v0.5 background mixer */
 .mixerLayer{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}.mixerPiece{position:absolute;font-weight:900;text-shadow:0 3px 14px rgba(0,0,0,.12);line-height:1}.mixerBg .posterTitle,.mixerBg .posterSubtitle{z-index:4}.mixerBg .scheduleList{z-index:4}.mixerBg .standImage{z-index:6}.mixerBg #shapeLayer,.mixerBg #stampLayer{position:absolute;inset:0;z-index:7;pointer-events:none}.mixerBg #shapeLayer>* ,.mixerBg #stampLayer>*{pointer-events:auto}.toolPanel select{width:100%;border:0;background:#fff;border-radius:15px;padding:12px 14px;box-shadow:inset 0 0 0 1px #ede6ff;outline:none}.toolPanel .mainBtn,.toolPanel .softBtn{min-width:0}.mixerBg.bg-blank,.mixerBg.bg-gradient,.mixerBg.bg-dots,.mixerBg.bg-stripe,.mixerBg.bg-night,.mixerBg.bg-cafe,.mixerBg.bg-cyber{background-image:initial}.mixerBg .emptyHint{display:none!important}
+
+/* v0.5.2 mixer fix: background is drawn on a dedicated layer */
+.mixerLayer{background:transparent;z-index:0!important;}
+.mixerBg .mixerLayer{display:block!important;}
+.mixerBg .posterDecor{z-index:1;}
+.mixerBg .posterTitle,.mixerBg .posterSubtitle,.mixerBg .scheduleList{z-index:4;}
+.mixerBg #shapeLayer,.mixerBg #stampLayer{z-index:7;}
+
+/* v0.5.3: schedule auto-fit + clearer layouts */
+.poster{--safe-top:178px;--safe-bottom:52px;}
+.scheduleList{max-height:calc(100% - var(--safe-top) - var(--safe-bottom));overflow:hidden;align-content:start;}
+.scheduleItem{min-height:0;}
+.scheduleTitleText{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.poster.schedule-compact .scheduleList{gap:8px;}
+.poster.schedule-compact .scheduleItem{padding:10px 12px;border-radius:18px;font-size:14px;grid-template-columns:70px 60px 1fr;}
+.poster.schedule-compact .genreBadge{font-size:11px;padding:3px 7px;margin-top:2px;}
+.poster.schedule-mini .scheduleList{gap:6px;}
+.poster.schedule-mini .scheduleItem{padding:8px 10px;border-radius:16px;font-size:13px;grid-template-columns:62px 54px 1fr;}
+.poster.schedule-mini .genreBadge{font-size:10px;padding:2px 6px;margin-top:1px;}
+.poster.schedule-ultra .posterTitle{font-size:42px;top:28px;}
+.poster.schedule-ultra .posterSubtitle{font-size:17px;top:84px;}
+.poster.schedule-ultra .scheduleList{top:132px;--safe-top:132px;gap:5px;}
+.poster.schedule-ultra .scheduleItem{padding:6px 8px;border-radius:14px;font-size:12px;grid-template-columns:54px 48px 1fr;box-shadow:0 6px 14px rgba(53,36,93,.12);}
+.poster.schedule-ultra .genreBadge{display:none;}
+
+/* Layout: right character area, left character area, timetable, big cards */
+.poster.layout-left .posterTitle,.poster.layout-left .posterSubtitle{text-align:left;left:42%;right:30px;}
+.poster.layout-left .scheduleList{left:42%;right:28px;top:168px;--safe-top:168px;}
+.poster.layout-left .scheduleItem{grid-template-columns:1fr;gap:4px;}
+.poster.layout-left .standImage{left:-6%;right:auto;bottom:-20px;max-width:48%;}
+.poster.layout-left::after{content:"LEFT STYLE";position:absolute;left:20px;top:20px;font-size:11px;font-weight:900;letter-spacing:.08em;color:rgba(38,48,68,.35);z-index:2;}
+
+.poster.layout-right .posterTitle,.poster.layout-right .posterSubtitle{text-align:left;left:34px;right:42%;}
+.poster.layout-right .scheduleList{left:34px;right:42%;top:168px;--safe-top:168px;}
+.poster.layout-right .scheduleItem{grid-template-columns:1fr;gap:4px;}
+.poster.layout-right .standImage{right:-4%;left:auto;bottom:-20px;max-width:48%;}
+.poster.layout-right::after{content:"RIGHT STYLE";position:absolute;right:20px;top:20px;font-size:11px;font-weight:900;letter-spacing:.08em;color:rgba(38,48,68,.35);z-index:2;}
+
+.poster.layout-time .posterTitle{top:28px;font-size:46px;}
+.poster.layout-time .posterSubtitle{top:86px;font-size:18px;}
+.poster.layout-time .scheduleList{top:128px;--safe-top:128px;left:58px;right:40px;gap:8px;}
+.poster.layout-time .scheduleList::before{content:"";position:absolute;left:94px;top:6px;bottom:6px;width:4px;border-radius:999px;background:rgba(255,116,189,.42);}
+.poster.layout-time .scheduleItem{position:relative;grid-template-columns:82px 1fr;border-radius:18px;padding:10px 14px 10px 0;background:rgba(255,255,255,.72);box-shadow:none;border:0;}
+.poster.layout-time .scheduleItem::before{content:"";position:absolute;left:89px;top:50%;width:14px;height:14px;border-radius:50%;background:var(--pink);transform:translateY(-50%);box-shadow:0 0 0 5px rgba(255,116,189,.18);}
+.poster.layout-time .dateBadge{grid-row:1/3;text-align:right;padding-right:24px;}
+.poster.layout-time .timeBadge{grid-column:2;font-size:16px;}
+.poster.layout-time .scheduleText{grid-column:2;}
+.poster.layout-time .genreBadge{font-size:11px;}
+
+.poster.largeCards .scheduleList{gap:16px;}
+.poster.largeCards .scheduleItem{grid-template-columns:1fr;padding:18px 20px;border-radius:28px;font-size:1.18em;text-align:center;}
+.poster.largeCards .dateBadge,.poster.largeCards .timeBadge{font-size:1.05em;}
+
+@media(max-width:1050px){
+  .poster.layout-left .posterTitle,.poster.layout-left .posterSubtitle{left:38%;right:18px;}
+  .poster.layout-left .scheduleList{left:38%;right:18px;}
+  .poster.layout-right .posterTitle,.poster.layout-right .posterSubtitle{left:18px;right:38%;}
+  .poster.layout-right .scheduleList{left:18px;right:38%;}
+  .poster.layout-time .scheduleList{left:34px;right:24px;}
+}

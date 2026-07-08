@@ -45,15 +45,28 @@ function renderBackgrounds(){ $('bgGrid').innerHTML = backgrounds.map((b,i)=>`<b
 function renderFonts(){ $('fontSelect').innerHTML = fonts.map(f=>`<option value="${f[0]}">${f[1]}</option>`).join(''); }
 function renderStamps(){ $('stampGrid').innerHTML = stamps.map(s=>`<button data-stamp="${s}">${s}</button>`).join(''); }
 function renderSchedules(){
- if(!schedules.length){ scheduleList.innerHTML=''; updateEmptyState(); return; }
- scheduleList.innerHTML=schedules.map((s,i)=>`<div class="scheduleItem" data-i="${i}"><div class="dateBadge">${escapeHtml(s.date)}</div><div class="timeBadge">${escapeHtml(s.time)}</div><div><div>${escapeHtml(s.title)}</div><span class="genreBadge">${escapeHtml(s.genre)}</span></div></div>`).join('');
+ if(!schedules.length){
+   scheduleList.innerHTML='';
+   updateScheduleDensity();
+   updateEmptyState();
+   return;
+ }
+ scheduleList.innerHTML=schedules.map((s,i)=>`<div class="scheduleItem" data-i="${i}"><div class="dateBadge">${escapeHtml(s.date)}</div><div class="timeBadge">${escapeHtml(s.time)}</div><div class="scheduleText"><div class="scheduleTitleText">${escapeHtml(s.title)}</div><span class="genreBadge">${escapeHtml(s.genre)}</span></div></div>`).join('');
+ updateScheduleDensity();
  updateEmptyState();
+}
+function updateScheduleDensity(){
+  poster.classList.remove('schedule-compact','schedule-mini','schedule-ultra');
+  scheduleList.style.setProperty('--schedule-count', Math.max(schedules.length,1));
+  if(schedules.length >= 10) poster.classList.add('schedule-ultra');
+  else if(schedules.length >= 8) poster.classList.add('schedule-mini');
+  else if(schedules.length >= 6) poster.classList.add('schedule-compact');
 }
 function baseClasses(){ return ['poster',$('exportSize').value,getCurrentDesignClass(),getCurrentBgClass(),getCurrentLayoutClass()].join(' '); }
 function getCurrentDesignClass(){ const a=document.querySelector('[data-design].designActive'); const d=designs.find(x=>x[0]===(a?.dataset.design||'simple')); return d?d[2]:'theme-simple'; }
 function getCurrentBgClass(){ const a=document.querySelector('[data-bg].bgActive'); return a?.dataset.bg||'bg-blank'; }
 function getCurrentLayoutClass(){ const a=document.querySelector('[data-layout].active'); const l=layouts.find(x=>x[0]===(a?.dataset.layout||'blank')); return l?l[3].replace('theme-simple','').trim():''; }
-function refreshPosterClass(){ poster.className=baseClasses(); applyToggles(); updateEmptyState(); }
+function refreshPosterClass(){ poster.className=baseClasses(); applyToggles(); updateScheduleDensity(); updateEmptyState(); }
 function bind(){
  $('addScheduleBtn').onclick=()=>{schedules.push({date:$('dateInput').value||'日付未定',time:$('timeInput').value||'時間未定',title:$('titleInput').value||'配信予定',genre:$('genreInput').value});renderSchedules();saveLocal();};
  document.querySelectorAll('.templateCard').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.templateCard').forEach(b=>b.classList.remove('active'));btn.classList.add('active');refreshPosterClass();});
@@ -180,9 +193,8 @@ function applyMixerBackground(announce=true){
  const opacity=+$('mixerOpacity').value;
  const base1=lighten(c1,light), base2=lighten(c2,light);
  const css=patternCss(pattern,c1,c2,opacity)+`radial-gradient(circle at 18% 12%,${rgba(c2,.55)},transparent 25%),radial-gradient(circle at 86% 18%,${rgba('#ffffff',.40)},transparent 18%),linear-gradient(145deg,${base1},${base2})`;
- // 既存の背景クラスに負けないよう、背景クラスを外して!importantで反映する
- poster.classList.remove('bg-blank','bg-gradient','bg-dots','bg-stripe','bg-night','bg-cafe','bg-cyber');
- poster.style.setProperty('background', css, 'important');
+ // 背景クラスに負けないよう、poster本体ではなく専用レイヤーに描画する
+ mixerLayer.style.background = css;
  poster.classList.add('mixerBg');
  buildMixerDecor(pattern,c1,c2,parseInt($('mixerAmount').value,10));
  saveMixerState(); updateEmptyState();
@@ -215,17 +227,14 @@ function randomMixerBackground(){
  applyMixerBackground();
 }
 function clearMixerBackground(save=true){
- poster.style.removeProperty('background');
  poster.classList.remove('mixerBg');
- if(!['bg-blank','bg-gradient','bg-dots','bg-stripe','bg-night','bg-cafe','bg-cyber'].some(c=>poster.classList.contains(c))){
-   poster.classList.add('bg-blank');
- }
+ mixerLayer.style.background = '';
  mixerLayer.innerHTML='';
  if(save) localStorage.removeItem('sukedecoMixerBg');
  updateEmptyState();
 }
 function saveMixerState(){
- if(!poster.classList.contains('mixerBg')) return;
+ if(!poster.classList.contains('mixerBg') || !mixerLayer.style.background) return;
  const data={mood:$('mixerMood').value,c1:$('mixerColor1').value,c2:$('mixerColor2').value,pattern:$('mixerPattern').value,amount:$('mixerAmount').value,light:$('mixerLight').value,opacity:$('mixerOpacity').value};
  localStorage.setItem('sukedecoMixerBg',JSON.stringify(data));
 }

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>SukeDeco｜すけでこ</title>
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -11,111 +11,76 @@
     <header class="topbar">
       <div>
         <div class="brand">SukeDeco</div>
-        <p>予定を入力するだけ。AIがデザイン。</p>
+        <div class="sub">予定を入力するだけ。AI風に表を作成。</div>
       </div>
-      <button id="resetBtn" class="ghost">リセット</button>
+      <button id="resetBtn" class="ghost">初期化</button>
     </header>
 
-    <main class="shell">
-      <section class="panel compactPanel">
-        <div class="stepTitle"><span>1</span>予定入力</div>
-        <label class="fieldLabel">メインタイトル</label>
-        <input id="mainTitle" class="input" value="今週の配信予定" placeholder="例：今週の配信予定" />
+    <main class="main">
+      <section class="panel inputPanel">
+        <h2>① 予定入力</h2>
+        <label class="field full">
+          <span>メインタイトル</span>
+          <input id="mainTitle" type="text" value="今週の配信予定" placeholder="例：今週の配信予定" />
+        </label>
 
-        <div class="quickAdd">
-          <button id="pickDateBtn" class="inputBtn">📅 日付</button>
-          <button id="pickTimeBtn" class="inputBtn">⏰ 時間</button>
-          <input id="eventTitle" class="input grow" placeholder="予定タイトル" />
-          <input id="eventNote" class="input noteInput" placeholder="補足・右側に入れる文字" />
-          <button id="addEventBtn" class="primary small">＋</button>
+        <div class="formGrid">
+          <label class="field"><span>日付</span><input id="dateInput" type="date" /></label>
+          <label class="field"><span>時間</span><input id="timeInput" type="time" value="20:00" /></label>
+          <label class="field full"><span>タイトル</span><input id="titleInput" type="text" placeholder="例：雑談配信" /></label>
+          <label class="field full"><span>右側メモ</span><input id="noteInput" type="text" placeholder="例：初見さん歓迎 / コラボ / 参加型" /></label>
         </div>
-        <div id="dateTimeText" class="hint">日付と時間を選んでください</div>
 
-        <div id="eventsList" class="eventsList"></div>
+        <div class="btnRow">
+          <button id="addBtn" class="primary">＋ 予定を追加</button>
+          <button id="makeBtn" class="accent">✨ スケジュールを作成</button>
+        </div>
 
-        <div class="stepTitle"><span>2</span>AIで作成</div>
-        <button id="generateBtn" class="aiBtn">✨ スケジュールを作成</button>
-        <div id="aiMessage" class="aiMessage">予定件数・雰囲気・イラスト有無から自動で表を作ります。</div>
+        <div class="scheduleListWrap">
+          <div class="miniTitle">入力した予定</div>
+          <div id="scheduleList" class="scheduleList empty">まだ予定がありません</div>
+        </div>
 
-        <details class="detailsBox">
+        <details class="compactBox">
           <summary>こだわり設定</summary>
-          <div class="grid2">
-            <label>雰囲気
-              <select id="mood" class="input"><option>おまかせ</option><option>ポップ</option><option>クール</option><option>ゲーム</option><option>シンプル</option><option>ゆめかわ</option><option>和風</option><option>宇宙</option></select>
-            </label>
-            <label>メイン色
-              <input id="mainColor" type="color" value="#7c5cff" class="colorInput" />
-            </label>
-            <label>柄
-              <select id="pattern" class="input"><option>おまかせ</option><option>なし</option><option>星</option><option>水玉</option><option>グリッド</option><option>ストライプ</option><option>ハート</option></select>
-            </label>
-            <label>文字サイズ
-              <input id="fontScale" type="range" min="80" max="120" value="100" />
-            </label>
+          <div class="settingsGrid">
+            <label class="field"><span>雰囲気</span><select id="moodSelect"><option value="pop">ポップ</option><option value="cool">クール</option><option value="game">ゲーム</option><option value="simple">シンプル</option><option value="night">夜</option><option value="cafe">カフェ</option></select></label>
+            <label class="field"><span>メイン色</span><input id="mainColor" type="color" value="#5b7cfa" /></label>
+            <label class="field"><span>アクセント</span><input id="accentColor" type="color" value="#ff7aa8" /></label>
+            <label class="field"><span>柄</span><select id="patternSelect"><option value="auto">AIにおまかせ</option><option value="none">なし</option><option value="dots">水玉</option><option value="stars">星</option><option value="grid">グリッド</option><option value="stripe">ストライプ</option></select></label>
           </div>
         </details>
 
-        <details class="detailsBox">
-          <summary>イラスト編集</summary>
-          <input id="illustInput" type="file" accept="image/*" class="fileInput" />
-          <div class="grid2 controls">
-            <label>サイズ<input id="illustScale" type="range" min="30" max="220" value="100" /></label>
-            <label>回転<input id="illustRotate" type="range" min="-30" max="30" value="0" /></label>
-            <label>透明度<input id="illustOpacity" type="range" min="20" max="100" value="100" /></label>
-            <label>透過強さ<input id="removeStrength" type="range" min="5" max="80" value="28" /></label>
+        <details class="compactBox">
+          <summary>イラスト挿入・編集</summary>
+          <label class="filePick"><input id="imageInput" type="file" accept="image/*" />イラストを選ぶ</label>
+          <div class="settingsGrid">
+            <label class="field"><span>サイズ</span><input id="imgSize" type="range" min="40" max="220" value="115" /></label>
+            <label class="field"><span>左右位置</span><input id="imgX" type="range" min="0" max="100" value="78" /></label>
+            <label class="field"><span>上下位置</span><input id="imgY" type="range" min="0" max="100" value="50" /></label>
+            <label class="field"><span>透明度</span><input id="imgOpacity" type="range" min="20" max="100" value="100" /></label>
           </div>
-          <div class="buttonRow">
-            <button id="removeWhiteBtn" class="soft">白背景を透過</button>
-            <button id="removeClickColorBtn" class="soft">クリック色を透過</button>
-            <button id="flipIllustBtn" class="soft">左右反転</button>
-            <button id="deleteIllustBtn" class="danger">削除</button>
-          </div>
-          <p class="hint">イラストは完成画像上でドラッグ移動できます。クリック色透過は画像を押して色を選びます。</p>
+          <div class="btnRow small"><button id="flipBtn" class="ghost">左右反転</button><button id="removeImgBtn" class="ghost danger">イラスト削除</button></div>
         </details>
       </section>
 
-      <section class="previewWrap">
-        <div class="phonePreview">
-          <div id="canvas" class="scheduleCanvas">
-            <div id="patternLayer" class="patternLayer"></div>
-            <div class="canvasContent">
-              <h1 id="canvasTitle">今週の配信予定</h1>
-              <div id="scheduleArea" class="scheduleArea empty">予定を追加して「スケジュールを作成」を押してください</div>
-            </div>
-            <img id="illust" class="illust hidden" alt="イラスト" draggable="false" />
-            <div id="watermark" class="watermark">Made with SukeDeco</div>
+      <section class="panel previewPanel">
+        <div class="previewHead">
+          <h2>② プレビュー</h2>
+          <div id="layoutHint" class="hint">予定を追加して作成してください</div>
+        </div>
+        <div id="canvas" class="canvas pattern-dots mood-pop">
+          <div class="watermark">Made with SukeDeco</div>
+          <div id="illustrationLayer" class="illustrationLayer hidden"><img id="illustImg" alt="挿入イラスト" /></div>
+          <div class="canvasInner">
+            <div id="canvasTitle" class="canvasTitle">今週の配信予定</div>
+            <div id="cardsArea" class="cardsArea layout-empty"><div class="emptyPreview">予定を追加するとここに表ができます</div></div>
           </div>
         </div>
-
-        <section class="panel savePanel">
-          <div class="stepTitle"><span>3</span>保存</div>
-          <div class="buttonRow">
-            <button id="savePngBtn" class="primary">PNG保存</button>
-            <button id="draftBtn" class="soft">下書き保存</button>
-          </div>
-          <label class="check"><input id="watermarkToggle" type="checkbox" checked /> Made with SukeDecoを表示</label>
-        </section>
+        <div class="btnRow exportRow"><button id="downloadBtn" class="primary">PNG保存</button></div>
       </section>
     </main>
   </div>
-
-  <dialog id="dateDialog" class="pickerDialog">
-    <div class="dialogHead"><b>日付を選択</b><button class="ghost" data-close="dateDialog">閉じる</button></div>
-    <input id="datePicker" type="date" class="input" />
-    <button id="dateOkBtn" class="primary full">決定</button>
-  </dialog>
-
-  <dialog id="timeDialog" class="pickerDialog">
-    <div class="dialogHead"><b>時間を選択</b><button class="ghost" data-close="timeDialog">閉じる</button></div>
-    <div class="timeBox">
-      <label>時 <input id="hourRange" type="range" min="0" max="23" value="20" /></label>
-      <div id="hourView" class="bigNum">20</div>
-      <label>分 <input id="minuteRange" type="range" min="0" max="55" step="5" value="0" /></label>
-      <div id="minuteView" class="bigNum">00</div>
-    </div>
-    <button id="timeOkBtn" class="primary full">決定</button>
-  </dialog>
-
   <script src="app.js"></script>
 </body>
 </html>

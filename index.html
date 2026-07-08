@@ -14,6 +14,7 @@
         <div class="subbrand">予定を入力するだけ。AIがデザイン。</div>
       </div>
       <button id="resetBtn" class="ghost-btn" aria-label="最初から作り直す">最初から</button>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </header>
 
     <main>
@@ -24,12 +25,101 @@
           <h1>スケジュール表を<br>かんたん作成</h1>
           <p class="lead">予定を入れると、AI風デザイナーが見やすい表を複数案で提案します。</p>
           <button id="startBtn" class="primary-btn big">＋ 新しく作る</button>
+          <div id="brandEmptyCard" class="brand-card-inline">
+            <p>毎回の設定を楽にする</p>
+            <button id="brandRegisterBtn" class="ghost-btn full">✨ ブランドを登録する</button>
+          </div>
+          <div id="brandReadyCard" class="brand-card-inline" hidden>
+            <p>いつもの世界観で始める</p>
+            <div class="brand-actions">
+              <button id="brandUseBtn" class="primary-btn full">✨ ブランドで作る</button>
+              <button id="brandEditBtn" class="ghost-btn">編集</button>
+            </div>
+          </div>
         </div>
         <div class="mini-grid">
           <div class="mini-card">📅<span>予定入力</span></div>
           <div class="mini-card">🤖<span>AI作成</span></div>
           <div class="mini-card">🎨<span>候補選択</span></div>
           <div class="mini-card">📤<span>保存</span></div>
+        </div>
+      </section>
+
+
+      <section id="brandWizard" class="screen">
+        <div class="wizard-card glass">
+          <div id="brandStep1" class="brand-step-panel active">
+            <p class="eyebrow">AI Brand</p>
+            <h2>こんにちは！まずはあなたのブランドを教えてください✨</h2>
+            <label class="field-label">活動名・ブランド名</label>
+            <input id="brandNameInput" class="input" placeholder="例：湊音ヒロ" />
+            <div class="wizard-actions">
+              <button class="ghost-btn" data-brand-cancel>キャンセル</button>
+              <button id="brandNameNextBtn" class="primary-btn">次へ</button>
+            </div>
+          </div>
+
+          <div id="brandStep2" class="brand-step-panel">
+            <h2>立ち絵を選択</h2>
+            <p class="hint">いつも使う立ち絵を登録しておくと、次回から自動で反映できます。</p>
+            <label class="upload-card">
+              <input id="brandIllustInput" type="file" accept="image/*" hidden />
+              <span>🖼 立ち絵を選ぶ</span>
+              <small>PNG/JPEG対応。大きい画像は自動で軽量化します。</small>
+            </label>
+            <div id="brandIllustPreview" class="brand-upload-preview"><span>未選択</span></div>
+            <div class="wizard-actions">
+              <button id="brandIllustBackBtn" class="ghost-btn">戻る</button>
+              <button id="brandIllustNextBtn" class="primary-btn">次へ</button>
+            </div>
+          </div>
+
+          <div id="brandStep3" class="brand-step-panel">
+            <h2>ロゴはありますか？</h2>
+            <p class="hint">任意です。あとから編集できます。</p>
+            <input id="brandLogoInput" type="file" accept="image/*" hidden />
+            <div class="brand-logo-choice">
+              <button id="brandLogoSkipBtn" class="ghost-btn full">あとで</button>
+              <button id="brandLogoChooseBtn" class="primary-btn full">選ぶ</button>
+            </div>
+            <div id="brandLogoPreview" class="brand-upload-preview"><span>未選択</span></div>
+            <div class="wizard-actions">
+              <button id="brandLogoBackBtn" class="ghost-btn">戻る</button>
+              <button id="brandLogoNextBtn" class="primary-btn">次へ</button>
+            </div>
+          </div>
+
+          <div id="brandStep4" class="brand-step-panel">
+            <h2>世界観を選択</h2>
+            <label class="field-label">テーマカラー</label>
+            <div id="brandColorGroup" class="color-grid">
+              <button class="color-dot active" style="--c:#54a6ff" data-color="#54a6ff" aria-label="水色を選ぶ"></button>
+              <button class="color-dot" style="--c:#8b5cf6" data-color="#8b5cf6" aria-label="紫を選ぶ"></button>
+              <button class="color-dot" style="--c:#ff6fae" data-color="#ff6fae" aria-label="ピンクを選ぶ"></button>
+              <button class="color-dot" style="--c:#10b981" data-color="#10b981" aria-label="緑を選ぶ"></button>
+              <button class="color-dot" style="--c:#111827" data-color="#111827" aria-label="黒を選ぶ"></button>
+              <button class="color-dot" style="--c:#f59e0b" data-color="#f59e0b" aria-label="黄色を選ぶ"></button>
+            </div>
+            <label class="field-label">世界観</label>
+            <div id="brandMoodGroup" class="chip-grid">
+              <button class="chip active" data-mood="pop">🌈 ポップ</button>
+              <button class="chip" data-mood="cool">💎 クール</button>
+              <button class="chip" data-mood="game">🎮 ゲーム</button>
+              <button class="chip" data-mood="simple">✨ シンプル</button>
+              <button class="chip" data-mood="cute">💗 かわいい</button>
+              <button class="chip" data-mood="night">🌙 夜</button>
+            </div>
+            <div class="wizard-actions">
+              <button id="brandMoodBackBtn" class="ghost-btn">戻る</button>
+              <button id="brandRegisterDoneBtn" class="primary-btn">登録する</button>
+            </div>
+          </div>
+
+          <div id="brandStep5" class="brand-step-panel finish-panel">
+            <div class="mascot-bubble">✨</div>
+            <h2 id="brandCompleteMessage">完成✨ ブランドを登録しました。</h2>
+            <button id="brandHomeBtn" class="primary-btn big full">ホームに戻る</button>
+          </div>
         </div>
       </section>
 
@@ -92,7 +182,7 @@
               <label class="upload-card">
                 <input id="illustInput" type="file" accept="image/*" hidden />
                 <span>🖼 イラスト・立ち絵を追加</span>
-                <small>PNG/JPEG対応。あとで位置調整できます。</small>
+                <small>PNG/JPEG対応。大きい画像は自動で軽量化します。</small>
               </label>
               <button id="generateBtn" class="primary-btn big full">✨ AIで作成</button>
               <div id="thinking" class="thinking hidden">
@@ -117,9 +207,17 @@
                 <label>文字サイズ <input id="fontSizeRange" type="range" min="70" max="130" value="100"></label>
                 <label>イラスト大きさ <input id="illustScaleRange" type="range" min="40" max="180" value="100"></label>
                 <label><input id="flipIllust" type="checkbox"> イラスト左右反転</label>
+                <label><input id="autoFitToggle" type="checkbox" checked> 立ち絵を自動フィット</label>
+                <label>保存サイズ<select id="outputSize" class="input compact-select"><option value="square">正方形 1080×1080</option><option value="wide">横長 16:9</option><option value="story">縦長 9:16</option></select></label>
                 <label><input id="watermarkToggle" type="checkbox" checked> Made with SukeDeco</label>
               </div>
+              <p class="save-note">下書きはこの端末のブラウザ内に保存されます。大事な予定表はPNG保存してください。</p>
+              <p class="save-note">アップロードする画像は、使用する権利を確認してください。</p>
               <button id="saveBtn" class="primary-btn big full">PNG保存</button>
+              <button id="shareBtn" class="primary-btn big full" hidden>📤 SNSに共有</button>
+              <div id="speedBadge" class="speed-badge hidden">
+                <span id="speedBadgeText"></span>
+              </div>
             </div>
           </section>
 

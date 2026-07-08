@@ -183,20 +183,40 @@ async function detectUniformBackground(img){
     c.width=w; c.height=h;
     const ctx=c.getContext('2d');
     ctx.drawImage(img,0,0,w,h);
-    const border=Math.max(2, Math.floor(Math.min(w,h)*.05));
-    const data=ctx.getImageData(0,0,w,h).data;
-    const samples=[];
-    for(let y=0;y<h;y++){
-      for(let x=0;x<w;x++){
-        const isBorder = x<border || x>=w-border || y<border || y>=h-border;
-        if(!isBorder) continue;
-        const i=(y*w+x)*4;
-        samples.push([data[i],data[i+1],data[i+2]]);
+    const cw=Math.max(2, Math.floor(w*.1));
+    const ch=Math.max(2, Math.floor(h*.1));
+    const cornerRects=[
+      [0,0,cw,ch],
+      [w-cw,0,cw,ch],
+      [0,h-ch,cw,ch],
+      [w-cw,h-ch,cw,ch]
+    ];
+    const corners=cornerRects.map(rect=>{
+      const data=ctx.getImageData(rect[0],rect[1],rect[2],rect[3]);
+      const d=data.data;
+      const samples=[];
+      for(let i=0;i<d.length;i+=4){
+        samples.push([d[i],d[i+1],d[i+2]]);
       }
+      const avg=samples.reduce((a,s)=>[a[0]+s[0],a[1]+s[1],a[2]+s[2]],[0,0,0]).map(v=>v/samples.length);
+      return {samples, avg};
+    });
+    const dist=(a,b)=>Math.sqrt(Math.pow(a[0]-b[0],2)+Math.pow(a[1]-b[1],2)+Math.pow(a[2]-b[2],2));
+    const outliers=[];
+    for(let i=0;i<corners.length;i++){
+      const distances=[];
+      for(let j=0;j<corners.length;j++){
+        if(i!==j) distances.push(dist(corners[i].avg,corners[j].avg));
+      }
+      const closeCount=distances.filter(v=>v<=45).length;
+      if(closeCount===0) outliers.push(i);
     }
+    if(outliers.length>=2) return null;
+    const validCorners=corners.filter((_,i)=>!outliers.includes(i));
+    const samples=validCorners.flatMap(corner=>corner.samples);
     if(samples.length===0) return null;
     const avg=samples.reduce((a,s)=>[a[0]+s[0],a[1]+s[1],a[2]+s[2]],[0,0,0]).map(v=>v/samples.length);
-    const variance = samples.reduce((a,s)=>a+Math.pow(s[0]-avg[0],2)+Math.pow(s[1]-avg[1],2)+Math.pow(s[2]-avg[2],2), 0) / samples.length;
+    const variance=samples.reduce((a,s)=>a+Math.pow(s[0]-avg[0],2)+Math.pow(s[1]-avg[1],2)+Math.pow(s[2]-avg[2],2),0)/samples.length;
     if(variance > 900) return null;
     return {r:Math.round(avg[0]), g:Math.round(avg[1]), b:Math.round(avg[2]), variance};
   }catch(e){

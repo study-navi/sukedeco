@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
 const state = {
   screen:'home', step:'input', title:'今週の配信予定', events:[], mood:'pop', color:'#54a6ff', prompt:'', candidates:[], selected:0,
-  illust:null, illustEdgeColor:null, illustX:0, illustY:0, illustScale:100, illustFlip:false, autoFit:true, watermark:true, fontScale:100, outputSize:'square', seed:Date.now(),
+  illust:null, illustOriginal:null, illustEdgeColor:null, illustX:0, illustY:0, illustScale:100, illustFlip:false, autoFit:true, autoBackgroundRemove:true, watermark:true, fontScale:100, outputSize:'square', seed:Date.now(),
   brand:{name:'', logo:null, illust:null, color:'#54a6ff', mood:'pop'}, brandDraft:null, brandStep:1, startedAt:null, speedShown:false
 };
 const moodNames = {pop:'ポップ',cool:'クール',game:'ゲーム',simple:'シンプル',cute:'かわいい',night:'夜'};
@@ -175,6 +175,84 @@ function computeAutoFit(img, outputSize){
   illustScale=Math.max(50, Math.min(180, illustScale));
   return {illustX, illustY, illustScale};
 }
+async function detectUniformBackground(img){
+  try{
+    const c=document.createElement('canvas');
+    const w=Math.min(img.naturalWidth, 200);
+    const h=Math.min(img.naturalHeight, 200);
+    c.width=w; c.height=h;
+    const ctx=c.getContext('2d');
+    ctx.drawImage(img,0,0,w,h);
+    const border=Math.max(2, Math.floor(Math.min(w,h)*.05));
+    const data=ctx.getImageData(0,0,w,h).data;
+    const samples=[];
+    for(let y=0;y<h;y++){
+      for(let x=0;x<w;x++){
+        const isBorder = x<border || x>=w-border || y<border || y>=h-border;
+        if(!isBorder) continue;
+        const i=(y*w+x)*4;
+        samples.push([data[i],data[i+1],data[i+2]]);
+      }
+    }
+    if(samples.length===0) return null;
+    const avg=samples.reduce((a,s)=>[a[0]+s[0],a[1]+s[1],a[2]+s[2]],[0,0,0]).map(v=>v/samples.length);
+    const variance = samples.reduce((a,s)=>a+Math.pow(s[0]-avg[0],2)+Math.pow(s[1]-avg[1],2)+Math.pow(s[2]-avg[2],2), 0) / samples.length;
+    if(variance > 900) return null;
+    return {r:Math.round(avg[0]), g:Math.round(avg[1]), b:Math.round(avg[2]), variance};
+  }catch(e){
+    console.error(e);
+    return null;
+  }
+}
+function colorDistanceAt(data, index, bgColor){
+  return Math.sqrt(
+    Math.pow(data[index]-bgColor.r,2)+
+    Math.pow(data[index+1]-bgColor.g,2)+
+    Math.pow(data[index+2]-bgColor.b,2)
+  );
+}
+function removeUniformBackground(img, bgColor){
+  const c=document.createElement('canvas');
+  c.width=img.naturalWidth; c.height=img.naturalHeight;
+  const ctx=c.getContext('2d');
+  ctx.drawImage(img,0,0);
+  const imageData=ctx.getImageData(0,0,c.width,c.height);
+  const d=imageData.data;
+  const w=c.width, h=c.height;
+  const visited=new Uint8Array(w*h);
+  const mask=new Uint8Array(w*h);
+  const queue=[];
+  const threshold=30 + Math.min(40, (bgColor.variance||0)/20);
+  const feather=threshold + 36;
+  function enqueue(x,y){
+    if(x<0||x>=w||y<0||y>=h) return;
+    const p=y*w+x;
+    if(visited[p]) return;
+    visited[p]=1;
+    const i=p*4;
+    const dist=colorDistanceAt(d,i,bgColor);
+    if(dist<=feather){
+      queue.push(p);
+      mask[p]= dist<=threshold ? 255 : Math.max(0, Math.round(255*(1-(dist-threshold)/(feather-threshold))));
+    }
+  }
+  for(let x=0;x<w;x++){ enqueue(x,0); enqueue(x,h-1); }
+  for(let y=0;y<h;y++){ enqueue(0,y); enqueue(w-1,y); }
+  let head=0;
+  while(head<queue.length){
+    const p=queue[head++];
+    const x=p%w, y=Math.floor(p/w);
+    enqueue(x+1,y); enqueue(x-1,y); enqueue(x,y+1); enqueue(x,y-1);
+  }
+  for(let p=0;p<mask.length;p++){
+    if(!mask[p]) continue;
+    const i=p*4;
+    const removeStrength=mask[p]/255;
+    d[i+3]=Math.round(d[i+3]*(1-removeStrength));
+  }
+  ctx.putImageData(imageData,0,0);
+  return c.toDataURL('image/png');
+}
 async function detectIllustEdgeColor(img){
   try{
     const c=document.createElement('canvas');
@@ -263,8 +341,8 @@ function saveState(){
   state.outputSize=$('outputSize')?.value || state.outputSize || 'square';
   const payload = JSON.stringify({
     title:state.title, events:state.events, mood:state.mood, color:state.color, prompt:state.prompt, outputSize:state.outputSize,
-    illust:state.illust, illustEdgeColor:state.illustEdgeColor, illustX:state.illustX, illustY:state.illustY, illustScale:state.illustScale,
-    illustFlip:state.illustFlip, autoFit:state.autoFit, watermark:state.watermark, fontScale:state.fontScale
+    illust:state.illust, illustOriginal:state.illustOriginal, illustEdgeColor:state.illustEdgeColor, illustX:state.illustX, illustY:state.illustY, illustScale:state.illustScale,
+    illustFlip:state.illustFlip, autoFit:state.autoFit, autoBackgroundRemove:state.autoBackgroundRemove, watermark:state.watermark, fontScale:state.fontScale
   });
   safeSetStorage('sukedeco_v2_2', payload);
 }
@@ -282,8 +360,11 @@ function loadState(){
     if(typeof s.illustFlip==='boolean') $('flipIllustStep').checked=s.illustFlip;
     if(typeof s.autoFit==='boolean') state.autoFit=s.autoFit;
     if($('autoFitToggleStep')) $('autoFitToggleStep').checked=state.autoFit;
+    if(typeof s.autoBackgroundRemove==='boolean') state.autoBackgroundRemove=s.autoBackgroundRemove;
+    if($('autoBgRemoveToggle')) $('autoBgRemoveToggle').checked=state.autoBackgroundRemove;
     if(typeof s.watermark==='boolean') $('watermarkToggle').checked=s.watermark;
     if(s.illust){ $('illustImg').src=s.illust; $('illustLayer').classList.remove('hidden'); }
+    updateIllustRevertButton();
   }catch(e){console.error(e); notify('読み込み中にエラーが発生しました。');}
 }
 function sortedEvents(){
@@ -361,10 +442,19 @@ async function handleIllust(file){
   if(!file.type.startsWith('image/')){notify('画像ファイルを選んでください。'); return;}
   try{
     state.illust=await compressImage(file);
+    state.illustOriginal=state.illust;
+    let loadedImg=await loadImageFromDataUrl(state.illust);
+    if(state.autoBackgroundRemove){
+      const bgColor=await detectUniformBackground(loadedImg);
+      if(bgColor){
+        state.illust=removeUniformBackground(loadedImg, bgColor);
+        loadedImg=await loadImageFromDataUrl(state.illust);
+        notify('✨ 白背景を検出しました。背景を透過しました。');
+      }
+    }
     $('illustImg').src=state.illust; $('illustLayer').classList.remove('hidden');
     state.illustFlip=false;
     if($('flipIllustStep')) $('flipIllustStep').checked=false;
-    const loadedImg=await loadImageFromDataUrl(state.illust);
     state.illustEdgeColor=await detectIllustEdgeColor(loadedImg);
     if(state.autoFit){
       await applyAutoFitToCurrentIllust(loadedImg);
@@ -374,8 +464,26 @@ async function handleIllust(file){
       notify('画像を軽量化して追加しました。');
     }
     updateIllustControls();
+    updateIllustRevertButton();
     renderIllust(); saveState();
   }catch(e){console.error(e); notify('画像の読み込みに失敗しました。');}
+}
+async function revertIllustOriginal(){
+  if(!state.illustOriginal) return;
+  state.illust=state.illustOriginal;
+  $('illustImg').src=state.illust;
+  const img=await loadImageFromDataUrl(state.illust);
+  state.illustEdgeColor=await detectIllustEdgeColor(img);
+  if(state.autoFit){
+    await applyAutoFitToCurrentIllust(img);
+  }
+  updateIllustRevertButton();
+  renderIllust(); saveState();
+  notify('元の画像に戻しました。');
+}
+function updateIllustRevertButton(){
+  const btn=$('illustRevertBtn'); if(!btn) return;
+  btn.hidden=!state.illustOriginal;
 }
 function hexToRgb(hex){
   const value=String(hex||'').replace('#','').trim();
@@ -543,7 +651,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  $('startBtn').onclick=()=>{startCreationTimer();showScreen('create');showStep('input');}; $('brandRegisterBtn').onclick=()=>openBrandWizard(false); $('brandEditBtn').onclick=()=>openBrandWizard(true); $('brandUseBtn').onclick=applyBrand; $('resetBtn').onclick=()=>{state.startedAt=null;state.speedShown=false;if($('speedBadge')) $('speedBadge').classList.add('hidden');localStorage.removeItem('sukedeco_v2_2'); localStorage.removeItem('sukedeco_v2_1'); localStorage.removeItem('sukedeco_v2'); notify('下書きを削除しました。'); setTimeout(()=>location.reload(),250);};
  document.querySelectorAll('.step').forEach(b=>b.onclick=()=>showStep(b.dataset.step));
  $('addEventBtn').onclick=addEvent; $('toAiBtn').onclick=()=>showStep('ai'); $('generateBtn').onclick=thinkAndGenerate; $('moreBtn').onclick=generateCandidates; $('saveBtn').onclick=savePng; if($('shareBtn')){ if(canShareFiles()){ $('shareBtn').hidden=false; $('shareBtn').onclick=shareSchedule; } else { $('shareBtn').hidden=true; } }
- $('mainTitle').oninput=renderAll; $('aiPrompt').oninput=()=>{state.prompt=$('aiPrompt').value; saveState();}; $('fontSizeRange').oninput=e=>{state.fontScale=+e.target.value; renderPreview(); saveState();}; $('illustScaleRangeStep').oninput=e=>{state.illustScale=+e.target.value; renderIllust(); saveState();}; $('flipIllustStep').onchange=e=>{state.illustFlip=e.target.checked; renderIllust(); saveState();}; $('autoFitToggleStep').onchange=e=>{state.autoFit=e.target.checked; notify(state.autoFit ? '次にアップロードする立ち絵から自動フィットします。' : '自動フィットをオフにしました。'); saveState();}; $('watermarkToggle').onchange=e=>{state.watermark=e.target.checked; renderPreview(); saveState();}; $('outputSize').onchange=e=>{state.outputSize=e.target.value; renderPreview(); saveState();}; $('illustInput').onchange=e=>handleIllust(e.target.files[0]); $('illustInputStep').onchange=e=>handleIllust(e.target.files[0]); $('illustNextBtn').onclick=()=>showStep('finish');
+ $('mainTitle').oninput=renderAll; $('aiPrompt').oninput=()=>{state.prompt=$('aiPrompt').value; saveState();}; $('fontSizeRange').oninput=e=>{state.fontScale=+e.target.value; renderPreview(); saveState();}; $('illustScaleRangeStep').oninput=e=>{state.illustScale=+e.target.value; renderIllust(); saveState();}; $('flipIllustStep').onchange=e=>{state.illustFlip=e.target.checked; renderIllust(); saveState();}; $('autoFitToggleStep').onchange=e=>{state.autoFit=e.target.checked; notify(state.autoFit ? '次にアップロードする立ち絵から自動フィットします。' : '自動フィットをオフにしました。'); saveState();}; $('autoBgRemoveToggle').onchange=e=>{state.autoBackgroundRemove=e.target.checked; notify(state.autoBackgroundRemove ? '次にアップロードする立ち絵から背景を自動透過します。' : '背景の自動透過をオフにしました。'); saveState();}; $('illustRevertBtn').onclick=revertIllustOriginal; $('watermarkToggle').onchange=e=>{state.watermark=e.target.checked; renderPreview(); saveState();}; $('outputSize').onchange=e=>{state.outputSize=e.target.value; renderPreview(); saveState();}; $('illustInput').onchange=e=>handleIllust(e.target.files[0]); $('illustInputStep').onchange=e=>handleIllust(e.target.files[0]); $('illustNextBtn').onclick=()=>showStep('finish');
  document.querySelectorAll('#moodGroup .chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('#moodGroup .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.mood=b.dataset.mood;applyTheme(state.mood,state.color); saveState();});
  document.querySelectorAll('#colorGroup .color-dot').forEach(b=>b.onclick=()=>{document.querySelectorAll('#colorGroup .color-dot').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.color=b.dataset.color;applyTheme(state.mood,state.color); saveState();});
  $('brandNameNextBtn').onclick=()=>{state.brandDraft=normalizeBrand(state.brandDraft); state.brandDraft.name=$('brandNameInput').value.trim(); if(!state.brandDraft.name){notify('活動名を入力してください。'); return;} showBrandStep(2);};

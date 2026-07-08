@@ -128,7 +128,8 @@
           <button data-step="input" class="step active">1 予定</button>
           <button data-step="ai" class="step">2 AI</button>
           <button data-step="select" class="step">3 選ぶ</button>
-          <button data-step="finish" class="step">4 保存</button>
+          <button data-step="illust" class="step">4 立ち絵</button>
+          <button data-step="finish" class="step">5 保存</button>
         </nav>
 
         <div class="work-grid">
@@ -201,13 +202,26 @@
               <button id="moreBtn" class="ghost-btn full">🎲 別案を作る</button>
             </div>
 
+            <div id="stepIllust" class="step-panel">
+              <h2>立ち絵を調整</h2>
+              <p class="hint">プレビュー上で立ち絵をドラッグすると位置を調整できます。</p>
+              <label class="upload-card">
+                <input id="illustInputStep" type="file" accept="image/*" hidden />
+                <span>🖼 立ち絵を変更する</span>
+                <small>PNG/JPEG対応。大きい画像は自動で軽量化します。</small>
+              </label>
+              <div class="compact-controls">
+                <label>イラスト大きさ <input id="illustScaleRangeStep" type="range" min="40" max="180" value="100"></label>
+                <label><input id="flipIllustStep" type="checkbox"> イラスト左右反転</label>
+                <label><input id="autoFitToggleStep" type="checkbox" checked> 立ち絵を自動フィット</label>
+              </div>
+              <button id="illustNextBtn" class="primary-btn full next">保存に進む</button>
+            </div>
+
             <div id="stepFinish" class="step-panel">
-              <h2>微調整・保存</h2>
+              <h2>保存</h2>
               <div class="compact-controls">
                 <label>文字サイズ <input id="fontSizeRange" type="range" min="70" max="130" value="100"></label>
-                <label>イラスト大きさ <input id="illustScaleRange" type="range" min="40" max="180" value="100"></label>
-                <label><input id="flipIllust" type="checkbox"> イラスト左右反転</label>
-                <label><input id="autoFitToggle" type="checkbox" checked> 立ち絵を自動フィット</label>
                 <label>保存サイズ<select id="outputSize" class="input compact-select"><option value="square">正方形 1080×1080</option><option value="wide">横長 16:9</option><option value="story">縦長 9:16</option></select></label>
                 <label><input id="watermarkToggle" type="checkbox" checked> Made with SukeDeco</label>
               </div>

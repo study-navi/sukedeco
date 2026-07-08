@@ -58,7 +58,7 @@ function bind(){
  $('addScheduleBtn').onclick=()=>{schedules.push({date:$('dateInput').value||'日付未定',time:$('timeInput').value||'時間未定',title:$('titleInput').value||'配信予定',genre:$('genreInput').value});renderSchedules();saveLocal();};
  document.querySelectorAll('.templateCard').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.templateCard').forEach(b=>b.classList.remove('active'));btn.classList.add('active');refreshPosterClass();});
  document.querySelectorAll('#designGrid .bgChip').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('#designGrid .bgChip').forEach(b=>b.classList.remove('designActive'));btn.classList.add('designActive');refreshPosterClass();});
- document.querySelectorAll('#bgGrid .bgChip').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('#bgGrid .bgChip').forEach(b=>b.classList.remove('bgActive'));btn.classList.add('bgActive');refreshPosterClass();});
+ document.querySelectorAll('#bgGrid .bgChip').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('#bgGrid .bgChip').forEach(b=>b.classList.remove('bgActive'));btn.classList.add('bgActive');clearMixerBackground(false);refreshPosterClass();});
  document.querySelectorAll('.toolBtn').forEach(btn=>btn.onclick=()=>showTool(btn.dataset.tool));
  $('fontSelect').onchange=()=>poster.style.fontFamily=$('fontSelect').value;
  $('textColor').oninput=()=>{document.querySelector('.posterTitle').style.color=$('textColor').value;document.querySelector('.posterSubtitle').style.color=$('textColor').value;};
@@ -180,7 +180,9 @@ function applyMixerBackground(announce=true){
  const opacity=+$('mixerOpacity').value;
  const base1=lighten(c1,light), base2=lighten(c2,light);
  const css=patternCss(pattern,c1,c2,opacity)+`radial-gradient(circle at 18% 12%,${rgba(c2,.55)},transparent 25%),radial-gradient(circle at 86% 18%,${rgba('#ffffff',.40)},transparent 18%),linear-gradient(145deg,${base1},${base2})`;
- poster.style.background=css;
+ // 既存の背景クラスに負けないよう、背景クラスを外して!importantで反映する
+ poster.classList.remove('bg-blank','bg-gradient','bg-dots','bg-stripe','bg-night','bg-cafe','bg-cyber');
+ poster.style.setProperty('background', css, 'important');
  poster.classList.add('mixerBg');
  buildMixerDecor(pattern,c1,c2,parseInt($('mixerAmount').value,10));
  saveMixerState(); updateEmptyState();
@@ -213,8 +215,11 @@ function randomMixerBackground(){
  applyMixerBackground();
 }
 function clearMixerBackground(save=true){
- poster.style.background='';
+ poster.style.removeProperty('background');
  poster.classList.remove('mixerBg');
+ if(!['bg-blank','bg-gradient','bg-dots','bg-stripe','bg-night','bg-cafe','bg-cyber'].some(c=>poster.classList.contains(c))){
+   poster.classList.add('bg-blank');
+ }
  mixerLayer.innerHTML='';
  if(save) localStorage.removeItem('sukedecoMixerBg');
  updateEmptyState();

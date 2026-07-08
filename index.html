@@ -22,6 +22,8 @@
         <p class="hint">日付はカレンダー、時間はスライドで選べます。</p>
 
         <div class="inputCard">
+          <label class="fieldLabel">メインタイトル</label>
+          <input id="mainTitleInput" type="text" value="今週の配信予定" placeholder="例：今週の配信予定 / 7月の予定" />
           <div class="twoCols">
             <button class="pickerBtn" id="openCalendarBtn"><small>日付</small><b id="dateText">日付を選択</b></button>
             <button class="pickerBtn" id="openTimeBtn"><small>時間</small><b id="timeText">20:00</b></button>
@@ -67,8 +69,8 @@
             <button id="pickColorBtn">クリック色透過</button>
             <button id="flipBtn">左右反転</button>
             <button id="deleteIllustBtn" class="danger">削除</button>
-            <label>透過強さ<input id="threshold" type="range" min="10" max="160" value="60" /></label>
-            <label>境界ぼかし<input id="softness" type="range" min="0" max="80" value="16" /></label>
+            <label>透過強さ<input id="threshold" type="range" min="10" max="240" value="95" /></label>
+            <label>境界ぼかし<input id="softness" type="range" min="0" max="120" value="32" /></label>
             <label>大きさ<input id="illustSize" type="range" min="25" max="170" value="82" /></label>
             <label>回転<input id="illustRotate" type="range" min="-35" max="35" value="0" /></label>
           </div>

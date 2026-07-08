@@ -1,124 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>すけでこ｜SukeDeco AI Schedule</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SukeDeco｜AIスケジュールメーカー</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
+      <button class="icon-btn" id="backBtn" aria-label="戻る">‹</button>
       <div>
-        <div class="logo">SukeDeco</div>
-        <p class="tagline">予定を入れるだけ。スケジュール表をかんたん作成。</p>
+        <p class="eyebrow">Schedule Design App</p>
+        <h1>SukeDeco</h1>
       </div>
-      <button id="saveDraftBtn" class="ghost-btn">下書き保存</button>
+      <button class="icon-btn" id="saveDraftBtn" aria-label="下書き保存">♡</button>
     </header>
 
-    <main class="main-grid">
-      <section class="panel input-panel">
-        <div class="section-title">
-          <span>1</span>
-          <h2>予定を入力</h2>
-        </div>
-        <p class="hint">日付・時間・内容を入れて「AI風に作成」を押すだけ。</p>
+    <main id="app"></main>
 
-        <div class="quick-row">
-          <button id="sampleBtn" class="mini-btn">サンプル入力</button>
-          <button id="clearBtn" class="mini-btn danger">予定をクリア</button>
-        </div>
-
-        <div id="scheduleList" class="schedule-list"></div>
-        <button id="addScheduleBtn" class="add-btn">＋ 予定を追加</button>
-
-        <div class="section-title small">
-          <span>2</span>
-          <h2>雰囲気を選ぶ</h2>
-        </div>
-
-        <div class="control-group">
-          <label>作りたい雰囲気</label>
-          <select id="moodSelect">
-            <option value="auto">AIにおまかせ</option>
-            <option value="cute">かわいい</option>
-            <option value="simple">シンプル</option>
-            <option value="neon">ネオン</option>
-            <option value="game">ゲーム</option>
-            <option value="night">夜配信</option>
-            <option value="cafe">カフェ</option>
-            <option value="summer">夏</option>
-          </select>
-        </div>
-
-        <div class="control-group">
-          <label>表の見せ方</label>
-          <select id="layoutSelect">
-            <option value="smart">AIにおまかせ</option>
-            <option value="cards">カード</option>
-            <option value="timeline">タイムテーブル</option>
-            <option value="compact">コンパクト</option>
-            <option value="poster">ポスター</option>
-          </select>
-        </div>
-
-        <div class="control-row">
-          <div class="control-group half">
-            <label>メイン色</label>
-            <input id="mainColor" type="color" value="#8b5cf6" />
-          </div>
-          <div class="control-group half">
-            <label>サブ色</label>
-            <input id="subColor" type="color" value="#38bdf8" />
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>文字の大きさ</label>
-          <input id="fontSizeRange" type="range" min="70" max="130" value="100" />
-        </div>
-
-        <div class="control-group checkline">
-          <input id="watermarkCheck" type="checkbox" checked />
-          <label for="watermarkCheck">Made with SukeDeco を入れる</label>
-        </div>
-
-        <button id="aiCreateBtn" class="ai-btn">✨ AI風にスケジュール表を作成</button>
-      </section>
-
-      <section class="preview-area">
-        <div class="preview-toolbar panel">
-          <div>
-            <strong>完成プレビュー</strong>
-            <p id="aiComment">予定を入れると、見やすい表に自動で整えます。</p>
-          </div>
-          <div class="export-buttons">
-            <button id="squareBtn">X正方形</button>
-            <button id="verticalBtn">縦長</button>
-            <button id="storyBtn">ストーリー</button>
-          </div>
-        </div>
-
-        <div class="canvas-wrap">
-          <div id="exportCanvas" class="schedule-canvas size-square mood-cute layout-cards">
-            <div id="bgLayer" class="bg-layer"></div>
-            <div class="canvas-inner">
-              <div class="canvas-heading">
-                <div class="label-pill">SCHEDULE</div>
-                <h1 id="canvasTitle">今週の配信予定</h1>
-                <p id="canvasSub">予定を入力して、AI風に自動作成</p>
-              </div>
-              <div id="renderedSchedule" class="rendered-schedule">
-                <div class="empty-state">＋ 予定を追加して<br>スケジュール表を作ろう</div>
-              </div>
-            </div>
-            <div id="watermark" class="watermark">Made with SukeDeco</div>
-          </div>
-        </div>
-      </section>
-    </main>
+    <nav class="bottom-nav" id="bottomNav">
+      <button data-view="home" class="active">🏠<span>ホーム</span></button>
+      <button data-view="input">📅<span>予定</span></button>
+      <button data-view="brief">✨<span>AI</span></button>
+      <button data-view="results">🎨<span>候補</span></button>
+      <button data-view="edit">💾<span>保存</span></button>
+    </nav>
   </div>
 
+  <template id="homeTpl">
+    <section class="hero-card pop-in">
+      <div class="mascot">✨</div>
+      <p class="pill">AI Schedule Maker</p>
+      <h2>予定を入力するだけ。<br>あとはAIがデザイン。</h2>
+      <p class="lead">配信予定・イベント告知・週間スケジュールを、スマホでかんたん作成。</p>
+      <button class="primary big" data-action="start">新しく作る</button>
+    </section>
+    <section class="quick-grid">
+      <button class="quick-card" data-action="loadDraft"><b>📂 下書き</b><span>前回の続きから</span></button>
+      <button class="quick-card" data-action="style"><b>⭐ スタイル</b><span>お気に入り設定</span></button>
+      <button class="quick-card" data-action="random"><b>🎲 おまかせ</b><span>すぐ候補作成</span></button>
+      <button class="quick-card" data-action="settings"><b>⚙ 設定</b><span>透かしなど</span></button>
+    </section>
+  </template>
+
+  <template id="inputTpl">
+    <section class="step-head">
+      <span>STEP 1</span><h2>予定を入れる</h2><p>予定は必要な数だけ追加できます。7件以上でも自動で見やすく調整します。</p>
+    </section>
+    <section class="form-card">
+      <div class="row2"><label>日付<input id="dateInput" type="text" placeholder="7/15(火)"></label><label>時間<input id="timeInput" type="text" placeholder="20:00"></label></div>
+      <label>タイトル<input id="titleInput" type="text" placeholder="雑談配信 / ゲーム配信 / コラボ"></label>
+      <label>ジャンル<select id="genreInput"><option>雑談</option><option>ゲーム</option><option>コラボ</option><option>記念</option><option>歌</option><option>作業</option><option>お知らせ</option><option>その他</option></select></label>
+      <button class="primary" data-action="addSchedule">＋ 予定を追加</button>
+    </section>
+    <section class="schedule-list" id="scheduleList"></section>
+    <button class="primary sticky-cta" data-viewgo="brief">次へ：AIに伝える</button>
+  </template>
+
+  <template id="briefTpl">
+    <section class="step-head">
+      <span>STEP 2</span><h2>AIに雰囲気を伝える</h2><p>毎回指定してもOK。気に入った組み合わせはお気に入りスタイルに保存できます。</p>
+    </section>
+    <section class="form-card">
+      <label>雰囲気<select id="moodInput"><option>おまかせ</option><option>ポップ</option><option>クール</option><option>ゲーム</option><option>ネオン</option><option>シンプル</option><option>カフェ</option><option>和風</option><option>ゆめかわ</option></select></label>
+      <div class="row2"><label>メイン色<input id="mainColor" type="color" value="#5b7cfa"></label><label>アクセント<input id="accentColor" type="color" value="#ff7ab6"></label></div>
+      <label>自由コメント<textarea id="promptInput" rows="3" placeholder="例：男性でも使いやすい、青系、夜っぽく、ゲーム配信向け"></textarea></label>
+      <label class="check"><input id="standeeSpace" type="checkbox" checked> 立ち絵スペースを空ける</label>
+      <div class="split-actions"><button class="ghost" data-action="saveStyle">⭐ スタイル保存</button><button class="ghost" data-action="loadStyle">読み込み</button></div>
+    </section>
+    <button class="primary big ai-btn" data-action="generateAI">✨ AIでデザイン</button>
+  </template>
+
+  <template id="resultsTpl">
+    <section class="step-head">
+      <span>STEP 3</span><h2>AI候補から選ぶ</h2><p id="aiNote">予定件数に合わせて、見やすい表を自動で作りました。</p></section>
+    <div class="candidate-track" id="candidateTrack"></div>
+    <button class="ghost wide" data-action="generateAI">🎲 もっと作る</button>
+  </template>
+
+  <template id="editTpl">
+    <section class="step-head"><span>STEP 4</span><h2>少しだけ調整して保存</h2><p>色・背景・立ち絵・文字だけを簡単に調整できます。</p></section>
+    <section class="preview-wrap"><div id="finalCanvas" class="schedule-canvas"></div></section>
+    <section class="edit-tools">
+      <label>タイトル<input id="posterTitle" type="text" value="今週の配信予定"></label>
+      <div class="row2"><label>メイン色<input id="editMain" type="color"></label><label>アクセント<input id="editAccent" type="color"></label></div>
+      <label>立ち絵・イラスト<input id="imageUpload" type="file" accept="image/*"></label>
+      <label class="check"><input id="watermarkToggle" type="checkbox" checked> Made with SukeDecoを表示</label>
+      <div class="split-actions"><button class="ghost" data-action="refreshPreview">反映</button><button class="primary" data-action="exportPNG">PNG保存</button></div>
+    </section>
+  </template>
+
+  <div class="toast" id="toast"></div>
+  <script src="storage.js"></script>
+  <script src="layout.js"></script>
+  <script src="ai.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

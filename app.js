@@ -328,7 +328,26 @@ async function handleIllust(file){
     renderIllust(); saveState();
   }catch(e){console.error(e); notify('画像の読み込みに失敗しました。');}
 }
-function renderIllust(){const layer=$('illustLayer'); if(!layer) return; layer.style.transform=`translate(${state.illustX}px,${state.illustY}px) scale(${state.illustScale/100}) scaleX(${state.illustFlip?-1:1})`;}
+function hexToRgb(hex){
+  const value=String(hex||'').replace('#','').trim();
+  if(!/^[0-9a-fA-F]{6}$/.test(value)) return null;
+  return {r:parseInt(value.slice(0,2),16), g:parseInt(value.slice(2,4),16), b:parseInt(value.slice(4,6),16)};
+}
+function getIllustShadowColors(alphaShadow=.32, alphaGround=.20){
+  const rgb=hexToRgb(state.color||'#54a6ff') || {r:54,g:166,b:255};
+  const dark={r:Math.round(rgb.r*.42), g:Math.round(rgb.g*.42), b:Math.round(rgb.b*.42)};
+  return {
+    shadow:`rgba(${dark.r}, ${dark.g}, ${dark.b}, ${alphaShadow})`,
+    ground:`rgba(${dark.r}, ${dark.g}, ${dark.b}, ${alphaGround})`
+  };
+}
+function applyIllustShadowTheme(){
+  const layer=$('illustLayer'); if(!layer) return;
+  const colors=getIllustShadowColors();
+  layer.style.setProperty('--illust-shadow-color', colors.shadow);
+  layer.style.setProperty('--illust-ground-color', colors.ground);
+}
+function renderIllust(){const layer=$('illustLayer'); if(!layer) return; applyIllustShadowTheme(); layer.style.transform=`translate(${state.illustX}px,${state.illustY}px) scale(${state.illustScale/100}) scaleX(${state.illustFlip?-1:1})`;}
 function getIllustExportPosition(specW, specH){
   const preview=$('canvasPreview').getBoundingClientRect();
   const layer=$('illustLayer').getBoundingClientRect();
@@ -397,7 +416,18 @@ function renderScheduleToExportCanvas(){
   const dateFont=Math.max(12,Math.min(23, h*0.31)); const titleFont=Math.max(14,Math.min(28, h*0.38)); const noteFont=Math.max(10,Math.min(17, h*0.24));
   events.slice(0,30).forEach((e,i)=>{const col=two?i%2:0; const row=two?Math.floor(i/2):i; const x=startX+col*(cardW+gapX); const y=top+row*(h+gapY); if(y+h>bottom) return; drawScheduleCard(ctx,cardLayout,x,y,cardW,h,e,{color:state.color||p[2],dateFont,titleFont,noteFont,two});});
   if(n>30){ctx.fillStyle='rgba(15,23,42,.55)';ctx.font='900 20px sans-serif';ctx.fillText(`ほか ${n-30} 件`,margin,H-margin-20);}
-  if(state.illust){const img=$('illustImg'); const pos=getIllustExportPosition(W,H); const ratio=(img.naturalHeight/img.naturalWidth)||1; const iw=pos.iw; const ih=iw*ratio; ctx.save(); ctx.translate(pos.cx,pos.cy); ctx.scale(state.illustFlip?-1:1,1); try{ctx.filter='brightness(1.04) contrast(1.05) saturate(1.08)';}catch(e){} ctx.drawImage(img,-iw/2,-ih/2,iw,ih); try{ctx.filter='none';}catch(e){} ctx.restore();}
+  if(state.illust){
+    const img=$('illustImg'); const pos=getIllustExportPosition(W,H); const ratio=(img.naturalHeight/img.naturalWidth)||1; const iw=pos.iw; const ih=iw*ratio;
+    const shadowColors=getIllustShadowColors(.30,.18);
+    ctx.save(); ctx.globalAlpha=1; ctx.fillStyle=shadowColors.ground;
+    ctx.beginPath(); ctx.ellipse(pos.cx, pos.cy+ih*.48, iw*.34, Math.max(10, ih*.045), 0, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+    ctx.save(); ctx.translate(pos.cx,pos.cy); ctx.scale(state.illustFlip?-1:1,1);
+    try{ctx.filter='brightness(1.04) contrast(1.05) saturate(1.08)';}catch(e){}
+    ctx.drawImage(img,-iw/2,-ih/2,iw,ih);
+    try{ctx.filter='none';}catch(e){}
+    ctx.restore();
+  }
   if(state.watermark){ctx.fillStyle='rgba(15,23,42,.42)';ctx.font=`900 ${Math.round(Math.min(W,H)*0.022)}px sans-serif`;ctx.fillText('Made with SukeDeco',W-Math.round(Math.min(W,H)*0.27),H-Math.round(Math.min(W,H)*0.035));}
   return {canvas,spec};
 }

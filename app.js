@@ -109,7 +109,7 @@ async function applyBrand(){
   if(state.illust){
     $('illustImg').src=state.illust; $('illustLayer').classList.remove('hidden');
     state.illustFlip=false;
-    if($('flipIllust')) $('flipIllust').checked=false;
+    if($('flipIllustStep')) $('flipIllustStep').checked=false;
     if(state.autoFit){
       await applyAutoFitToCurrentIllust();
     }else{
@@ -186,9 +186,9 @@ async function applyAutoFitToCurrentIllust(){
   }
 }
 function updateIllustControls(){
-  if($('illustScaleRange')) $('illustScaleRange').value=state.illustScale;
-  if($('flipIllust')) $('flipIllust').checked=state.illustFlip;
-  if($('autoFitToggle')) $('autoFitToggle').checked=state.autoFit;
+  if($('illustScaleRangeStep')) $('illustScaleRangeStep').value=state.illustScale;
+  if($('flipIllustStep')) $('flipIllustStep').checked=state.illustFlip;
+  if($('autoFitToggleStep')) $('autoFitToggleStep').checked=state.autoFit;
 }
 async function handleBrandImage(file, key, previewId){
   if(!file) return;
@@ -231,10 +231,10 @@ function loadState(){
     if(s.prompt) $('aiPrompt').value=s.prompt;
     if(s.outputSize && $('outputSize')) $('outputSize').value=s.outputSize;
     if(s.fontScale) $('fontSizeRange').value=s.fontScale;
-    if(s.illustScale) $('illustScaleRange').value=s.illustScale;
-    if(typeof s.illustFlip==='boolean') $('flipIllust').checked=s.illustFlip;
+    if(s.illustScale) $('illustScaleRangeStep').value=s.illustScale;
+    if(typeof s.illustFlip==='boolean') $('flipIllustStep').checked=s.illustFlip;
     if(typeof s.autoFit==='boolean') state.autoFit=s.autoFit;
-    if($('autoFitToggle')) $('autoFitToggle').checked=state.autoFit;
+    if($('autoFitToggleStep')) $('autoFitToggleStep').checked=state.autoFit;
     if(typeof s.watermark==='boolean') $('watermarkToggle').checked=s.watermark;
     if(s.illust){ $('illustImg').src=s.illust; $('illustLayer').classList.remove('hidden'); }
   }catch(e){console.error(e); notify('読み込み中にエラーが発生しました。');}
@@ -316,7 +316,7 @@ async function handleIllust(file){
     state.illust=await compressImage(file);
     $('illustImg').src=state.illust; $('illustLayer').classList.remove('hidden');
     state.illustFlip=false;
-    if($('flipIllust')) $('flipIllust').checked=false;
+    if($('flipIllustStep')) $('flipIllustStep').checked=false;
     if(state.autoFit){
       await applyAutoFitToCurrentIllust();
       notify('立ち絵を自動フィットしました。');
@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  $('startBtn').onclick=()=>{startCreationTimer();showScreen('create');showStep('input');}; $('brandRegisterBtn').onclick=()=>openBrandWizard(false); $('brandEditBtn').onclick=()=>openBrandWizard(true); $('brandUseBtn').onclick=applyBrand; $('resetBtn').onclick=()=>{state.startedAt=null;state.speedShown=false;if($('speedBadge')) $('speedBadge').classList.add('hidden');localStorage.removeItem('sukedeco_v2_2'); localStorage.removeItem('sukedeco_v2_1'); localStorage.removeItem('sukedeco_v2'); notify('下書きを削除しました。'); setTimeout(()=>location.reload(),250);};
  document.querySelectorAll('.step').forEach(b=>b.onclick=()=>showStep(b.dataset.step));
  $('addEventBtn').onclick=addEvent; $('toAiBtn').onclick=()=>showStep('ai'); $('generateBtn').onclick=thinkAndGenerate; $('moreBtn').onclick=generateCandidates; $('saveBtn').onclick=savePng; if($('shareBtn')){ if(canShareFiles()){ $('shareBtn').hidden=false; $('shareBtn').onclick=shareSchedule; } else { $('shareBtn').hidden=true; } }
- $('mainTitle').oninput=renderAll; $('aiPrompt').oninput=()=>{state.prompt=$('aiPrompt').value; saveState();}; $('fontSizeRange').oninput=e=>{state.fontScale=+e.target.value; renderPreview(); saveState();}; $('illustScaleRange').oninput=e=>{state.illustScale=+e.target.value; renderIllust(); saveState();}; $('flipIllust').onchange=e=>{state.illustFlip=e.target.checked; renderIllust(); saveState();}; $('autoFitToggle').onchange=e=>{state.autoFit=e.target.checked; notify(state.autoFit ? '次にアップロードする立ち絵から自動フィットします。' : '自動フィットをオフにしました。'); saveState();}; $('watermarkToggle').onchange=e=>{state.watermark=e.target.checked; renderPreview(); saveState();}; $('outputSize').onchange=e=>{state.outputSize=e.target.value; renderPreview(); saveState();}; $('illustInput').onchange=e=>handleIllust(e.target.files[0]);
+ $('mainTitle').oninput=renderAll; $('aiPrompt').oninput=()=>{state.prompt=$('aiPrompt').value; saveState();}; $('fontSizeRange').oninput=e=>{state.fontScale=+e.target.value; renderPreview(); saveState();}; $('illustScaleRangeStep').oninput=e=>{state.illustScale=+e.target.value; renderIllust(); saveState();}; $('flipIllustStep').onchange=e=>{state.illustFlip=e.target.checked; renderIllust(); saveState();}; $('autoFitToggleStep').onchange=e=>{state.autoFit=e.target.checked; notify(state.autoFit ? '次にアップロードする立ち絵から自動フィットします。' : '自動フィットをオフにしました。'); saveState();}; $('watermarkToggle').onchange=e=>{state.watermark=e.target.checked; renderPreview(); saveState();}; $('outputSize').onchange=e=>{state.outputSize=e.target.value; renderPreview(); saveState();}; $('illustInput').onchange=e=>handleIllust(e.target.files[0]); $('illustInputStep').onchange=e=>handleIllust(e.target.files[0]); $('illustNextBtn').onclick=()=>showStep('finish');
  document.querySelectorAll('#moodGroup .chip').forEach(b=>b.onclick=()=>{document.querySelectorAll('#moodGroup .chip').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.mood=b.dataset.mood;applyTheme(state.mood,state.color); saveState();});
  document.querySelectorAll('#colorGroup .color-dot').forEach(b=>b.onclick=()=>{document.querySelectorAll('#colorGroup .color-dot').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.color=b.dataset.color;applyTheme(state.mood,state.color); saveState();});
  $('brandNameNextBtn').onclick=()=>{state.brandDraft=normalizeBrand(state.brandDraft); state.brandDraft.name=$('brandNameInput').value.trim(); if(!state.brandDraft.name){notify('活動名を入力してください。'); return;} showBrandStep(2);};
